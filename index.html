@@ -467,19 +467,6 @@
         <div class="header">
             <h1 id="pageTitle"></h1>
         </div>
-    <!-- [추가] 모든 페이지에서 공통으로 보이는 설정 버튼 -->
-    <div class="settings-btn" onclick="toggleSettings()">
-        ⚙️
-    </div>
-        
-        <div id="settingsMenu" class="settings-menu">
-            <div class="menu-item" onclick="showSignup()"> SIGN UP </div>
-            <div class="menu-item" onclick="logout()"> LOG IN </div>
-            <div class="menu-item" onclick="showDidibot()"> DIDIBOT </div>
-            <div class="menu-item" onclick="showCreatePage()"> MAKE A PAGE </div>
-            <div class="menu-item" onclick="showPage()"> MY PAGE </div>
-            <div class="menu-item" onclick="showWelcomeHome()"> HOME </div>
-        </div>
         
         <div id="balloonsContainer" class="balloons"></div>
         
@@ -513,7 +500,7 @@
         let pages = JSON.parse(localStorage.getItem('pages') || '{}');
         let messages = JSON.parse(localStorage.getItem('messages') || '{}');
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        let currentPageId = localStorage.getItem('currentPageId');
+        let currentPageId = sessionStorage.getItem('currentPageId');
 
         // 비속어 리스트
         const badWords = ['바보', '멍청', '싫어', '짜증', '나쁜', '죽어'];
@@ -542,6 +529,7 @@
 
         function showLogin() {
             showView('loginView');
+            document.getElementById('settingsMenu').classList.remove('active');
         }
 
         function showSignup() {
@@ -650,15 +638,22 @@
                 return;
             }
 
-            if (users.find(u => u.email === email)) {
+            if (centralDB.users[email]) {
                 errorEl.textContent = '이미 존재하는 이메일입니다.';
                 errorEl.classList.remove('hidden');
                 return;
             }
 
-            users.push({ id: Date.now(), name, email, password });
-            localStorage.setItem('users', JSON.stringify(users));
+            const userId = Date.now();
+            centralDB.users[email] = {
+                id: userId,
+                name,
+                email,
+                password
+            };
 
+            saveCentralDB();
+            
             alert('회원가입 완료!');
             document.getElementById('signupName').value = '';
             document.getElementById('signupEmail').value = '';
@@ -675,18 +670,22 @@
 
             errorEl.classList.add('hidden');
 
-            const user = users.find(u => u.email === email && u.password === password);
+            const user = centralDB.users[email];
 
-            if (user) {
+            if (!user || user.password !== password) {
+                 errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
                 currentUser = user;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
 
                 const pageId = 'page_' + user.id;
-                if (pages[pageId]) {
+                if (centralDB.pages[pageId]) {
                     currentPageId = pageId;
-                    localStorage.setItem('currentPageId', currentPageId);
+                    sessionStorage.setItem('currentPageId', currentPageId);
                     loadPage();
                 } else {
                     showCreatePage();
@@ -695,17 +694,15 @@
                 errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
                 errorEl.classList.remove('hidden');
             }
-        }
 
-        // 로그아웃
         // 로그아웃
         function logout() {
             // 로그인/페이지 상태 초기화
             currentUser = null;
             currentPageId = null;
 
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('currentPageId');
+            sessionStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentPageId');
 
             // 필요하면 메시지도 초기화하고 싶을 때 (선택)
             // localStorage.removeItem('messages');
