@@ -352,6 +352,35 @@
     </style>
 </head>
 <body>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import {
+      getFirestore,
+      setDoc,
+      getDoc,
+      doc,
+      collection,
+      addDoc,
+      getDocs
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWhpotjBRzaF2fAW9w1l5qwmzB0Cd9gWA",
+    authDomain: "vibe-page.firebaseapp.com",
+    projectId: "vibe-page",
+    storageBucket: "vibe-page.firebasestorage.app",
+    messagingSenderId: "332174000512",
+    appId: "1:332174000512:web:df67d0153bf1e930ad0165"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+</script>
     <!-- 설정 버튼 -->
     <div class="settings-btn" onclick="toggleSettings()">
         ⚙️
@@ -553,10 +582,6 @@
                 showLogin();
                 return;
             }
-
-            currentPageId = myPageId;
-    localStorage.setItem('currentPageId', currentPageId);
-    loadPage();
             
             if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
@@ -572,7 +597,7 @@
         }
 
         // 회원가입
-        function signup() {
+        async function signup() {
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
@@ -594,22 +619,21 @@
             }
 
             // 이메일 중복 체크
-            if (centralDB.users[email]) {
+            const existsSnap = await getDoc(doc(db,"users",email));
+            if(existsSnap.exists()){
                 errorEl.textContent = '이미 존재하는 이메일입니다.';
                 errorEl.classList.remove('hidden');
                 return;
             }
 
-            // 사용자 정보를 이메일을 키로 저장
+            // 메일을 키로 저장
             const userId = Date.now();
-            centralDB.users[email] = { 
+            await setDoc(doc(db,"useres",email), { 
                 id: userId, 
                 name, 
                 email, 
                 password 
-            };
-            
-            saveCentralDB();
+            });
 
             alert('회원가입 완료! 이메일로 로그인하세요.');
             document.getElementById('signupName').value = '';
@@ -620,7 +644,7 @@
         }
 
         // 로그인
-        function login() {
+        async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
@@ -628,14 +652,20 @@
             errorEl.classList.add('hidden');
 
             // 이메일로 사용자 찾기
-            const user = centralDB.users[email];
-
-            if (!user || user.password !== password) {
-                errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
+            const docSnap = await getDoc(doc(db, "users", email));
+            if (!docSnap.exists()) {
+                errorEl.textContent = "이메일 또는 비밀번호가 틀렸습니다.";
                 errorEl.classList.remove('hidden');
                 return;
             }
+            const user = docSnap.data();
 
+            if(user.password !== password){
+                errorEl.textContent = "이메일 또는 비밀번호가 틀렸습니다.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
             // 로그인 성공
             currentUser = user;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -668,9 +698,11 @@
             alert('로그아웃 되었습니다.');
             showLogin();
         }
-
+        
+        import { setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+       
         // 페이지 생성
-        function createPage() {
+        async function createPage() {
             const name = document.getElementById('pageName').value;
             const errorEl = document.getElementById('createPageError');
 
@@ -684,15 +716,12 @@
 
             const pageId = 'page_' + currentUser.id;
             
-            // 중앙 DB에 페이지 저장 및 메시지 초기화
-            centralDB.pages[pageId] = { 
-                id: pageId, 
-                name, 
-                ownerId: currentUser.id 
-            };
-            centralDB.messages[pageId] = []; // 기존 메시지 초기화
-            
-            saveCentralDB();
+            //Firestore에 페이지 저장
+            await setDoc(doc(db,"pages",pageld),{
+                id: pageld,
+                name,
+                ownerld: currentUser.id
+            });
 
             currentPageId = pageId;
             localStorage.setItem('currentPageId', currentPageId);
@@ -776,7 +805,7 @@
         }
 
         // 메시지 등록
-        function submitMessage() {
+        async function submitMessage() {
             const content = document.getElementById('messageContent').value;
             const authorName = document.getElementById('messageAuthor').value;
             const errorEl = document.getElementById('messageError');
@@ -797,20 +826,22 @@
             }
 
             const newMessage = {
-                id: Date.now(),
+                pageld: currentPageld,
                 content,
                 authorName,
-                color: colors[Math.floor(Math.random() * colors.length)]
+                color: colors[Math.floor(Math.random() * colors.length)],
+                createdAt: Date.now()
             };
 
-            // 중앙 DB에 메시지 추가
-            centralDB.messages[currentPageId].push(newMessage);
-            saveCentralDB();
-
-            alert('메시지가 등록되었습니다!');
-            closeMessageForm();
-            renderBalloons();
-        }
+            try{
+                await addDoc(collection(window.db,"messages"), newMessage);
+                alert('메시지가 등록되었습니다!');
+                closeMessageForm();
+                await renderBalloons();
+            } catch(error) {
+                errorEl.textContent + '메시지 등록 중 오류가 발생했습니다.';
+                errorEl.classList.remove('hidden');
+            }
 
         // 초기 로드
         showView('welcomeHomeView');
