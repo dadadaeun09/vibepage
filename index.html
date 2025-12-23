@@ -352,35 +352,6 @@
     </style>
 </head>
 <body>
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import {
-      getFirestore,
-      setDoc,
-      getDoc,
-      doc,
-      collection,
-      addDoc,
-      getDocs
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDWhpotjBRzaF2fAW9w1l5qwmzB0Cd9gWA",
-    authDomain: "vibe-page.firebaseapp.com",
-    projectId: "vibe-page",
-    storageBucket: "vibe-page.firebasestorage.app",
-    messagingSenderId: "332174000512",
-    appId: "1:332174000512:web:df67d0153bf1e930ad0165"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-</script>
     <!-- 설정 버튼 -->
     <div class="settings-btn" onclick="toggleSettings()">
         ⚙️
@@ -556,6 +527,11 @@
         }
 
         function showCreatePage() {
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                showLogin();
+                return;
+            }
             showView('createPageView');
             document.getElementById('settingsMenu').classList.remove('active');
         }
@@ -566,6 +542,10 @@
         }
 
         function backToPage() {
+            if (!currentUser || !currentPageId) {
+                showWelcomeHome();
+                return;
+            }
             showView('pageView');
         }
     
@@ -574,38 +554,47 @@
             document.getElementById('settingsMenu').classList.remove('active');
         }
     
-        // # 수정: showPage 함수 - 페이지 로드 로직 추가
+        // ✅ 수정된 showPage 함수
         function showPage() {
-    // 로그인 체크
+            console.log('showPage 호출됨');
+            console.log('currentUser:', currentUser);
+            
+            // 로그인 체크
             if (!currentUser) {
                 alert('로그인이 필요합니다.');
                 showLogin();
                 return;
             }
 
+            // 현재 사용자의 페이지 ID 생성
             const pageId = 'page_' + currentUser.id;
-
+            console.log('pageId:', pageId);
+            console.log('centralDB.pages:', centralDB.pages);
+            
+            // 페이지가 존재하는지 확인
             if (!centralDB.pages[pageId]) {
                 alert('페이지를 먼저 생성해주세요.');
                 showCreatePage();
                 return;
             }
-
-    currentPageId = PageId;
-    localStorage.setItem('currentPageId', currentPageId);
-    loadPage();
             
-            if (!currentPageId || !pages[currentPageId]) {
-                showCreatePage();
-                return;
-            }
+            // 페이지 로드
+            currentPageId = pageId;
+            localStorage.setItem('currentPageId', currentPageId);
             
-            loadPage();
-
-            const menu = document.getElementById('settingsMenu');
-            if (menu) {
-                menu.classList.remove('active');
-            }
+            // 페이지 정보 업데이트
+            const page = centralDB.pages[currentPageId];
+            document.getElementById('pageTitle').textContent = page.name + '의 페이지';
+            document.getElementById('messageModalTitle').textContent = page.name + '에게';
+            
+            // 풍선 렌더링
+            renderBalloons();
+            
+            // 화면 전환
+            showView('pageView');
+            
+            // 설정 메뉴 닫기
+            document.getElementById('settingsMenu').classList.remove('active');
         }
 
         // 회원가입
@@ -683,7 +672,7 @@
             if (centralDB.pages[pageId]) {
                 currentPageId = pageId;
                 localStorage.setItem('currentPageId', currentPageId);
-                loadPage();
+                showPage();
             } else {
                 showCreatePage();
             }
@@ -703,7 +692,7 @@
             }
 
             alert('로그아웃 되었습니다.');
-            showLogin();
+            showWelcomeHome();
         }
 
         // 페이지 생성
@@ -734,23 +723,9 @@
             currentPageId = pageId;
             localStorage.setItem('currentPageId', currentPageId);
 
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', currentPageId);   
-            window.history.replaceState({}, '', url);     
-
             document.getElementById('pageName').value = '';
-            alert('새 페이지가 생성되었습니다! 기존 메시지는 모두 삭제되었습니다.');
-            loadPage();
-        }
-
-        // 페이지 로드
-        function loadPage() {
-            const page = centralDB.pages[currentPageId];
-            document.getElementById('pageTitle').textContent = page.name + '의 페이지';
-            document.getElementById('messageModalTitle').textContent = page.name + '에게';
-            
-            renderBalloons();
-            showView('pageView');
+            alert('새 페이지가 생성되었습니다!');
+            showPage();
         }
 
         // 풍선 렌더링
@@ -841,6 +816,9 @@
             };
 
             // 중앙 DB에 메시지 추가
+            if (!centralDB.messages[currentPageId]) {
+                centralDB.messages[currentPageId] = [];
+            }
             centralDB.messages[currentPageId].push(newMessage);
             saveCentralDB();
 
