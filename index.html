@@ -4,98 +4,356 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>풍선 메시지</title>
-</head>
-<body>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>vibe page</title>
-
     <style>
-        /* 예시용 기본 스타일 (선택 사항) */
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         .container {
-            width: 100%;
             min-height: 100vh;
+            background: linear-gradient(135deg, #60A5FA 0%, #93C5FD 100%);
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
-
+        
         .card {
-            background: #ffffff;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 320px;
-        }
-
-        .input-group {
-            margin: 10px 0;
-        }
-
-        .input-group input {
             width: 100%;
-            padding: 8px 10px;
-            box-sizing: border-box;
+            max-width: 450px;
         }
-
+        
+        h1 {
+            color: #2563EB;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #D1D5DB;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #2563EB;
+        }
+        
+        textarea {
+            resize: none;
+            height: 120px;
+            font-family: inherit;
+        }
+        
         .checkbox-group {
-            margin: 10px 0;
-            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-
+        
+        .checkbox-group input {
+            width: 20px;
+            height: 20px;
+        }
+        
         button {
-            margin: 5px 0;
-            padding: 8px 12px;
+            width: 100%;
+            padding: 15px;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
+            transition: background 0.3s;
         }
-
+        
+        button:hover {
+            background: #1D4ED8;
+        }
+        
         .link-button {
+            background: transparent;
+            color: #2563EB;
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .link-button:hover {
+            background: #F3F4F6;
+        }
+        
+        .error {
+            color: #DC2626;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .page-container {
+            min-height: 100vh;
+            background: #60A5FA;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: white;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+        }
+        
+        .settings-btn {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .settings-menu {
+            position: fixed;
+            top: 170px;
+            right: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            padding: 10px;
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        
+        .settings-menu.active {
+            display: block;
+        }
+        
+        .menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .menu-item:hover {
+            background: #F3F4F6;
+        }
+        
+        .balloons {
+            padding: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .balloon {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .balloon:hover {
+            transform: scale(1.1);
+        }
+        
+        .balloon-shape {
+            width: 100px;
+            height: 120px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .balloon-string {
+            width: 2px;
+            height: 60px;
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .balloon-message {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 80px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            padding: 20px;
+            width: 280px;
+            z-index: 30;
+            display: none;
+        }
+        
+        .balloon-message.active {
+            display: block;
+        }
+        
+        .message-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background: none;
             border: none;
-            color: #007bff;
-            text-decoration: underline;
+            font-size: 20px;
+            cursor: pointer;
+            width: auto;
+            padding: 5px 10px;
         }
-
-        .error {
-            color: red;
-            margin: 5px 0;
+        
+        .add-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 70px;
+            height: 70px;
+            background: #2563EB;
+            border-radius: 50%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
         }
-
-        /* [추가] 화면을 숨길 때 사용할 클래스 */
+        
+        .add-btn:hover {
+            transform: scale(1.1);
+            background: #1D4ED8;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #1F2937;
+            font-size: 24px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            width: auto;
+            padding: 5px 10px;
+            color: #6B7280;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .flex-row input {
+            flex: 1;
+        }
+        
+        .flex-row button {
+            width: auto;
+            padding: 15px 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
         .hidden {
             display: none;
         }
+        
+        /* 풍선 색상 */
+        .color-pink { background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%); }
+        .color-purple { background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%); }
+        .color-blue { background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%); }
+        .color-green { background: linear-gradient(135deg, #86EFAC 0%, #4ADE80 100%); }
+        .color-yellow { background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%); }
+        .color-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); }
+        .color-indigo { background: linear-gradient(135deg, #A5B4FC 0%, #818CF8 100%); }
+        
+        .string-pink { background: #F87171; }
+        .string-purple { background: #A78BFA; }
+        .string-blue { background: #60A5FA; }
+        .string-green { background: #4ADE80; }
+        .string-yellow { background: #FCD34D; }
+        .string-red { background: #EF4444; }
+        .string-indigo { background: #818CF8; }
     </style>
 </head>
 <body>
-
-    <!-- 홈 화면 -->
-    <div id="welcomeHomeView" class="container">
-        <div class="card">
-            <div class="home-content">
-                <h1>vibe page</h1>
-                <h2>welcome to our page!</h2>
-                <p>It's our letter page.</p>
-                <!-- [기존] 홈에서 로그인/회원가입으로 이동하는 버튼 -->
-                <button onclick="showLogin()">로그인</button>
-                <button class="link-button" onclick="showSignup()">회원가입</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 로그인 화면 -->
-    <!-- [중요] 처음에는 숨기기 위해 hidden 클래스 추가 -->
-    <div id="loginView" class="container hidden">
+    <div id="loginView" class="container">
         <div class="card">
             <h1>로그인</h1>
             <div class="input-group">
@@ -106,13 +364,11 @@
             </div>
             <div id="loginError" class="error hidden"></div>
             <button onclick="login()">로그인</button>
-            <!-- [기존] 회원가입으로 이동 버튼 -->
             <button class="link-button" onclick="showSignup()">회원가입 하러 가기</button>
         </div>
     </div>
 
     <!-- 회원가입 화면 -->
-    <!-- [중요] 처음에는 숨기기 위해 hidden 클래스 추가 -->
     <div id="signupView" class="container hidden">
         <div class="card">
             <h1>회원가입</h1>
@@ -131,53 +387,7 @@
             </div>
             <div id="signupError" class="error hidden"></div>
             <button onclick="signup()">가입하기</button>
-            <!-- [기존] 로그인으로 이동 버튼 -->
             <button class="link-button" onclick="showLogin()">로그인 하러 가기</button>
-        </div>
-    </div>
-
-    <script>
-        // [추가] 세 개의 화면 중 하나만 보이게 전환하는 함수
-        function showView(viewId) {
-            const views = ['welcomeHomeView', 'loginView', 'signupView']; // 관리할 화면 id 목록
-
-            views.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (id === viewId) {
-                    // 선택된 화면은 표시
-                    el.classList.remove('hidden');
-                } else {
-                    // 나머지 화면은 숨김
-                    el.classList.add('hidden');
-                }
-            });
-        }
-
-        // [추가] 홈/회원가입 화면에서 로그인 화면으로 이동
-        function showLogin() {
-            showView('loginView');
-        }
-
-        // [추가] 홈/로그인 화면에서 회원가입 화면으로 이동
-        function showSignup() {
-            showView('signupView');
-        }
-
-        // [선택] 페이지가 처음 열릴 때 홈 화면을 확실히 보여 주고 싶다면 사용
-        // showView('welcomeHomeView');
-    </script>
-    
-    <!-- 추가: 홈 화면 (로그인 후) -->
-    <div id="homeView" class="container hidden">
-        <div class="card">
-            <div class="home-content">
-                <h1>🎈 풍선 메시지</h1>
-                <h2 id="homeUserName"></h2>
-                <p>나만의 페이지를 만들어 친구들의 메시지를 받아보세요!</p>
-                <button onclick="goToMyPage()">내 페이지로 가기</button>
-                <button class="link-button" onclick="logout()">로그아웃</button>
-            </div>
         </div>
     </div>
 
@@ -190,8 +400,7 @@
             </div>
             <div id="createPageError" class="error hidden"></div>
             <button onclick="createPage()">생성</button>
-            <!-- 수정: 홈으로 돌아가기 버튼 추가 -->
-            <button class="link-button" onclick="goToHome()">홈으로 돌아가기</button>
+            <button class="link-button" onclick="logout()">로그아웃</button>
         </div>
     </div>
 
@@ -220,13 +429,11 @@
             ⚙️
         </div>
         
-        <!-- 수정: 설정 메뉴에 홈/내 페이지 버튼 추가 -->
         <div id="settingsMenu" class="settings-menu">
-            <div class="menu-item" onclick="goToHome()">홈 화면으로</div>
-            <div class="menu-item" onclick="goToMyPageFromMenu()">내 페이지로</div>
             <div class="menu-item" onclick="showSignup()">회원가입</div>
-            <div class="menu-item" onclick="logout()">로그아웃</div>
+            <div class="menu-item" onclick="logout()">로그인</div>
             <div class="menu-item" onclick="showDidibot()">디디봇</div>
+            <div class="menu-item" onclick="showCreatePage()">자신의 페이지 만들기</div>
         </div>
         
         <div id="balloonsContainer" class="balloons"></div>
@@ -256,19 +463,20 @@
     </div>
 
     <script>
-        // 수정: GitHub Pages URL 기반으로 BASE_URL 설정
-        const BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
-        
-        // 수정: 회원가입한 사람 정보를 전역 저장소에 저장 (다른 기기에서 로그인 가능)
-        let users = JSON.parse(localStorage.getItem('globalUsers') || '[]');
-        let pages = JSON.parse(localStorage.getItem('globalPages') || '{}');
-        let messages = JSON.parse(localStorage.getItem('globalMessages') || '{}');
-        // 수정: 현재 로그인한 사용자는 세션에만 저장 (다른 기기에서 개인 페이지 확인 시 로그인 필요)
-        let currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        
+        // 데이터 저장소
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        let pages = JSON.parse(localStorage.getItem('pages') || '{}');
+        let messages = JSON.parse(localStorage.getItem('messages') || '{}');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let currentPageId = localStorage.getItem('currentPageId');
+
+        // 비속어 리스트
         const badWords = ['바보', '멍청', '싫어', '짜증', '나쁜', '죽어'];
+        
+        // 풍선 색상
         const colors = ['pink', 'purple', 'blue', 'green', 'yellow', 'red', 'indigo'];
 
+        // 비속어 카운트
         function countBadWords(text) {
             let count = 0;
             badWords.forEach(word => {
@@ -279,6 +487,7 @@
             return count;
         }
 
+        // 화면 전환
         function showView(viewId) {
             document.querySelectorAll('.container, .page-container').forEach(el => {
                 el.classList.add('hidden');
@@ -306,52 +515,10 @@
         }
 
         function backToPage() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const pageId = urlParams.get('page');
-            if (pageId && pages[pageId]) {
-                loadPageById(pageId);
-            } else {
-                showView('pageView');
-            }
+            showView('pageView');
         }
 
-        // 추가: 홈 화면으로 이동
-        function goToHome() {
-            if (!currentUser) {
-                // 수정: 로그인 안 되어 있으면 첫 접속 홈으로
-                showWelcomeHome();
-                return;
-            }
-            document.getElementById('homeUserName').textContent = currentUser.name + '님 환영합니다!';
-            document.getElementById('settingsMenu').classList.remove('active');
-            window.history.pushState({}, '', BASE_URL);
-            showView('homeView');
-        }
-
-        // 추가: 내 페이지로 이동
-        function goToMyPage() {
-            if (!currentUser) {
-                showLogin();
-                return;
-            }
-            
-            const myPageId = 'page_' + currentUser.id;
-            if (pages[myPageId]) {
-                // 추가: 개인 페이지 주소 생성 (URL에 페이지 ID 추가)
-                window.history.pushState({}, '', BASE_URL + '?page=' + myPageId);
-                loadPageById(myPageId);
-            } else {
-                showCreatePage();
-            }
-        }
-
-        // 추가: 메뉴에서 내 페이지로 이동
-        function goToMyPageFromMenu() {
-            document.getElementById('settingsMenu').classList.remove('active');
-            goToMyPage();
-        }
-
-        // 수정: 회원가입 - 전역 저장소에 저장
+        // 회원가입
         function signup() {
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
@@ -379,22 +546,18 @@
                 return;
             }
 
-            const newUser = { id: Date.now(), name, email, password };
-            users.push(newUser);
-            // 수정: 회원가입한 사람 정보를 전역 저장소에 저장 (다른 기기에서 로그인 가능)
-            localStorage.setItem('globalUsers', JSON.stringify(users));
+            users.push({ id: Date.now(), name, email, password });
+            localStorage.setItem('users', JSON.stringify(users));
 
             alert('회원가입 완료!');
             document.getElementById('signupName').value = '';
             document.getElementById('signupEmail').value = '';
             document.getElementById('signupPassword').value = '';
             document.getElementById('signupAgreed').checked = false;
-            // 수정: 에러 메시지 숨기기
-            errorEl.classList.add('hidden');
             showLogin();
         }
 
-        // 수정: 로그인 함수 전체
+        // 로그인
         function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -402,30 +565,21 @@
 
             errorEl.classList.add('hidden');
 
-            // 수정: 입력값 검증 추가
-            if (!email || !password) {
-                errorEl.textContent = '이메일과 비밀번호를 입력해주세요.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
-
             const user = users.find(u => u.email === email && u.password === password);
 
             if (user) {
                 currentUser = user;
-                // 수정: 세션 스토리지에만 저장 (다른 기기에서 개인 페이지 확인 시 로그인 필요)
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const pageId = urlParams.get('page');
-                
-                if (pageId && pages[pageId]) {
-                    loadPageById(pageId);
+                const pageId = 'page_' + user.id;
+                if (pages[pageId]) {
+                    currentPageId = pageId;
+                    localStorage.setItem('currentPageId', currentPageId);
+                    loadPage();
                 } else {
-                    // 수정: 로그인 후 홈 화면으로 이동
-                    goToHome();
+                    showCreatePage();
                 }
             } else {
                 errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
@@ -433,17 +587,17 @@
             }
         }
 
-        // 수정: 로그아웃
+        // 로그아웃
         function logout() {
             currentUser = null;
-            sessionStorage.removeItem('currentUser');
+            currentPageId = null;
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('currentPageId');
             document.getElementById('settingsMenu').classList.remove('active');
-            window.history.pushState({}, '', BASE_URL);
-            // 수정: 로그아웃 시 첫 접속 홈으로
-            showWelcomeHome();
+            showLogin();
         }
 
-        // 수정: 페이지 생성 - 페이지 새로 만들었을 때 내용 초기화하지 않음
+        // 페이지 생성
         function createPage() {
             const name = document.getElementById('pageName').value;
             const errorEl = document.getElementById('createPageError');
@@ -457,190 +611,132 @@
             }
 
             const pageId = 'page_' + currentUser.id;
+            pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
+            messages[pageId] = messages[pageId] || [];
             
-            // 수정: 기존 페이지가 있는지 확인하고, 있으면 덮어쓰지 않음 (내용 초기화 방지)
-            if (!pages[pageId]) {
-                pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
-                messages[pageId] = [];
-            } else {
-                pages[pageId].name = name;
-            }
-            
-            // 수정: 전역 저장소에 저장
-            localStorage.setItem('globalPages', JSON.stringify(pages));
-            localStorage.setItem('globalMessages', JSON.stringify(messages));
+            localStorage.setItem('pages', JSON.stringify(pages));
+            localStorage.setItem('messages', JSON.stringify(messages));
+
+            currentPageId = pageId;
+            localStorage.setItem('currentPageId', currentPageId);
 
             document.getElementById('pageName').value = '';
-            
-            // 추가: 개인 페이지 주소 생성 (URL에 페이지 ID 추가)
-            window.history.pushState({}, '', BASE_URL + '?page=' + pageId);
-            loadPageById(pageId);
+            loadPage();
         }
 
-        // 추가: 페이지 ID로 페이지 로드
-        function loadPageById(pageId) {
-            if (!pages[pageId]) {
-                alert('존재하지 않는 페이지입니다.');
-                goToHome();
-                return;
-            }
-
-            const page = pages[pageId];
-            const isOwner = currentUser && page.ownerId === currentUser.id;
-
+        // 페이지 로드
+        function loadPage() {
+            const page = pages[currentPageId];
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
             document.getElementById('messageModalTitle').textContent = page.name + '에게';
-            renderBalloons(pageId, isOwner);
+            
+            renderBalloons();
             showView('pageView');
         }
 
-        // 수정: 풍선 렌더링 - 페이지 주인만 메시지 내용 확인 가능
-        function renderBalloons(pageId, isOwner) {
+        // 풍선 렌더링
+        function renderBalloons() {
             const container = document.getElementById('balloonsContainer');
             container.innerHTML = '';
 
-            if (!pageId) pageId = getCurrentPageId();
-            if (!messages[pageId]) messages[pageId] = [];
-
-            const pageMessages = messages[pageId];
+            const pageMessages = messages[currentPageId] || [];
             pageMessages.forEach((msg, index) => {
                 const balloon = document.createElement('div');
                 balloon.className = 'balloon';
                 balloon.style.marginTop = (index % 3) * 20 + 'px';
                 balloon.style.marginLeft = (index % 4) * 15 + 'px';
 
-                // 수정: 페이지 주인만 풍선 클릭해서 메시지 열람 가능
+                const isOwner = currentUser && pages[currentPageId].ownerId === currentUser.id;
                 if (isOwner) {
                     balloon.onclick = () => toggleMessage(msg.id);
                 }
 
-               balloon.innerHTML = `
+                balloon.innerHTML = `
                     <div class="balloon-shape color-${msg.color}">🎈</div>
                     <div class="balloon-string string-${msg.color}"></div>
-                    ${isOwner ? `
                     <div id="message-${msg.id}" class="balloon-message">
                         <button class="message-close" onclick="event.stopPropagation(); closeMessage(${msg.id})">✕</button>
                         <p style="margin-bottom: 12px; color: #1F2937;">${msg.content}</p>
                         <p style="text-align: right; font-size: 14px; color: #6B7280; font-weight: bold;">- ${msg.authorName}</p>
                     </div>
-                    ` : ''}
                 `;
 
                 container.appendChild(balloon);
             });
         }
 
-        // 메시지
-        <invoke name="artifacts">
-<parameter name="command">update</parameter>
-<parameter name="id">simple_html_guide</parameter>
-<parameter name="old_str">        // 메시지</parameter>
-<parameter name="new_str">        // 메시지 토글
+        // 메시지 토글
         function toggleMessage(msgId) {
             const msgEl = document.getElementById('message-' + msgId);
-            if (msgEl) msgEl.classList.toggle('active');
+            msgEl.classList.toggle('active');
         }
+
         function closeMessage(msgId) {
-        const msgEl = document.getElementById('message-' + msgId);
-        if (msgEl) msgEl.classList.remove('active');
-    }
-
-    // 설정 메뉴 토글
-    function toggleSettings() {
-        document.getElementById('settingsMenu').classList.toggle('active');
-    }
-
-    // 추가: 현재 페이지 ID 가져오기
-    function getCurrentPageId() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('page');
-    }
-
-    // 수정: 메시지 폼 열기 - 타인도 메시지 작성 가능
-    function showMessageForm() {
-        const pageId = getCurrentPageId();
-        if (!pageId || !pages[pageId]) {
-            alert('페이지를 찾을 수 없습니다.');
-            return;
-        }
-        document.getElementById('messageModal').classList.add('active');
-    }
-
-    function closeMessageForm() {
-        document.getElementById('messageModal').classList.remove('active');
-        document.getElementById('messageContent').value = '';
-        document.getElementById('messageAuthor').value = '';
-        document.getElementById('messageError').classList.add('hidden');
-    }
-
-    // 수정: 메시지 등록 - 전역 저장소에 저장
-    function submitMessage() {
-        const content = document.getElementById('messageContent').value;
-        const authorName = document.getElementById('messageAuthor').value;
-        const errorEl = document.getElementById('messageError');
-        const pageId = getCurrentPageId();
-
-        errorEl.classList.add('hidden');
-
-        if (!content || !authorName) {
-            errorEl.textContent = '모든 항목을 입력해주세요.';
-            errorEl.classList.remove('hidden');
-            return;
+            const msgEl = document.getElementById('message-' + msgId);
+            msgEl.classList.remove('active');
         }
 
-        const badWordCount = countBadWords(content);
-        if (badWordCount >= 3) {
-            errorEl.textContent = '디디봇: 부적절한 내용이 감지되었습니다! 메시지를 등록할 수 없습니다.';
-            errorEl.classList.remove('hidden');
-            return;
+        // 설정 메뉴 토글
+        function toggleSettings() {
+            document.getElementById('settingsMenu').classList.toggle('active');
         }
 
-        const newMessage = {
-            id: Date.now(),
-            content,
-            authorName,
-            color: colors[Math.floor(Math.random() * colors.length)]
-        };
+        // 메시지 폼 열기
+        function showMessageForm() {
+            document.getElementById('messageModal').classList.add('active');
+        }
 
-        if (!messages[pageId]) messages[pageId] = [];
-        messages[pageId].push(newMessage);
-        
-        // 수정: 전역 저장소에 저장
-        localStorage.setItem('globalMessages', JSON.stringify(messages));
+        function closeMessageForm() {
+            document.getElementById('messageModal').classList.remove('active');
+            document.getElementById('messageContent').value = '';
+            document.getElementById('messageAuthor').value = '';
+            document.getElementById('messageError').classList.add('hidden');
+        }
 
-        alert('메시지가 등록되었습니다!');
-        closeMessageForm();
-        
-        // 수정: 페이지 새로고침하여 최신 메시지 표시
-        const page = pages[pageId];
-        const isOwner = currentUser && page.ownerId === currentUser.id;
-        renderBalloons(pageId, isOwner);
-    }
+        // 메시지 등록
+        function submitMessage() {
+            const content = document.getElementById('messageContent').value;
+            const authorName = document.getElementById('messageAuthor').value;
+            const errorEl = document.getElementById('messageError');
 
-    // 수정: 초기 로드 - URL 파라미터 확인
-    function initPage() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const pageId = urlParams.get('page');
+            errorEl.classList.add('hidden');
 
-        if (pageId && pages[pageId]) {
-            // 페이지 URL로 접근한 경우
-            if (currentUser) {
-                loadPageById(pageId);
-            } else {
-                // 수정: 비로그인 상태에서는 메시지 작성만 가능하도록 페이지 표시
-                loadPageById(pageId);
+            if (!content || !authorName) {
+                errorEl.textContent = '모든 항목을 입력해주세요.';
+                errorEl.classList.remove('hidden');
+                return;
             }
+
+            const badWordCount = countBadWords(content);
+            if (badWordCount >= 3) {
+                errorEl.textContent = '디디봇: 부적절한 내용이 감지되었습니다! 메시지를 등록할 수 없습니다.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const newMessage = {
+                id: Date.now(),
+                content,
+                authorName,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            };
+
+            messages[currentPageId].push(newMessage);
+            localStorage.setItem('messages', JSON.stringify(messages));
+
+            alert('메시지가 등록되었습니다!');
+            closeMessageForm();
+            renderBalloons();
+        }
+
+        // 초기 로드
+        if (currentUser && currentPageId && pages[currentPageId]) {
+            loadPage();
         } else if (currentUser) {
-            // 로그인 상태에서 일반 접근
-            goToHome();
+            showCreatePage();
         } else {
-            // 비로그인 상태에서 일반 접근
             showLogin();
         }
-    }
-
-    // 초기 로드
-    initPage();
-</script>
+    </script>
 </body>
 </html>
