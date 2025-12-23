@@ -424,22 +424,13 @@
     </div>
     
     <script>
-            function showView(viewId) {
-            const views = ['welcomeHomeView', 'loginView', 'signupView']; // 관리할 화면 id 목록
-
-            views.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                if (id === viewId) {
-                    // 선택된 화면은 표시
-                    el.classList.remove('hidden');
-                } else {
-                    // 나머지 화면은 숨김
-                    el.classList.add('hidden');
-                }
+        function showView(viewId) {
+            document.querySelectorAll('.container, .page-container').forEach(el => {
+                el.classList.add('hidden');
             });
+            document.getElementById(viewId).classList.remove('hidden');
         }
-    showView('welcomeHomeView');
+        showView('welcomeHomeView');
     </script>
 
     <!-- 페이지 생성 화면 -->
@@ -793,13 +784,7 @@
         }
 
         // 초기 로드
-        if (currentUser && currentPageId && pages[currentPageId]) {
-            loadPage();
-        } else if (currentUser) {
-            showCreatePage();
-        } else {
-            showLogin();
-        }
+        showView('welcomeHomeView');
     </script>
 </body>
 </html>
