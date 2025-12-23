@@ -390,6 +390,25 @@
             <button class="link-button" onclick="showLogin()">로그인 하러 가기</button>
         </div>
     </div>
+    
+    <script>
+            function showView(viewId) {
+            const views = ['welcomeHomeView', 'loginView', 'signupView']; // 관리할 화면 id 목록
+
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (id === viewId) {
+                    // 선택된 화면은 표시
+                    el.classList.remove('hidden');
+                } else {
+                    // 나머지 화면은 숨김
+                    el.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+
 
     <!-- 페이지 생성 화면 -->
     <div id="createPageView" class="container hidden">
