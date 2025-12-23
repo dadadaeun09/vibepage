@@ -512,7 +512,6 @@
 
     <script>
         // ===== 중앙 데이터베이스 구조 =====
-        let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         let currentPageId = localStorage.getItem('currentPageId');
 
@@ -521,11 +520,6 @@
         
         // 풍선 색상
         const colors = ['pink', 'purple', 'blue', 'green', 'yellow', 'red', 'indigo'];
-
-        // 중앙 DB 저장
-        function saveCentralDB() {
-            localStorage.setItem('centralDB', JSON.stringify(centralDB));
-        }
 
         // 비속어 카운트
         function countBadWords(text) {
@@ -583,19 +577,8 @@
                 showLogin();
                 return;
             }
-            
-            if (!currentPageId || !pages[currentPageId]) {
-                showCreatePage();
-                return;
-            }
-            
             loadPage();
-
-            const menu = document.getElementById('settingsMenu');
-            if (menu) {
-                menu.classList.remove('active');
-            }
-        }
+            document.getElementById('settingsMenu').classList.remove('active');
 
         // 회원가입
         async function signup() {
@@ -620,21 +603,19 @@
             }
 
             // 이메일 중복 체크
-            const existsSnap = await getDoc(doc(db,"users",email));
-            if(existsSnap.exists()){
-                errorEl.textContent = '이미 존재하는 이메일입니다.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
+            try{
+                const existsSnap = await getDoc(doc(db,"users",email));
+                if(existsSnap.exists()){
+                    errorEl.textContent = '이미 존재하는 이메일입니다.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
 
-            // 메일을 키로 저장
-            const userId = Date.now();
-            await setDoc(doc(db,"useres",email), { 
-                id: userId, 
-                name, 
-                email, 
-                password 
-            });
+                // 메일을 키로 저장
+                const userId = Date.now();
+                await setDoc(doc(db,"useres",email), { 
+                    id: userId, name, email, password 
+                });
 
             alert('회원가입 완료! 이메일로 로그인하세요.');
             document.getElementById('signupName').value = '';
@@ -642,6 +623,10 @@
             document.getElementById('signupPassword').value = '';
             document.getElementById('signupAgreed').checked = false;
             showLogin();
+        } catch(error) {
+                error.El.textContent = '회원가입 오류가 발생했습니다.';
+                errorEl.classList.remove('hidden');
+        }
         }
 
         // 로그인
@@ -653,19 +638,27 @@
             errorEl.classList.add('hidden');
 
             // 이메일로 사용자 찾기
-            const docSnap = await getDoc(doc(db, "users", email));
-            if (!docSnap.exists()) {
+            try {
+            const docSnap = await getDoc(doc(window.db, "users", email));
+            if (!docSnap.exists() || docSnap.data().password !== password) {
                 errorEl.textContent = "이메일 또는 비밀번호가 틀렸습니다.";
                 errorEl.classList.remove('hidden');
                 return;
             }
-            const user = docSnap.data();
 
-            if(user.password !== password){
-                errorEl.textContent = "이메일 또는 비밀번호가 틀렸습니다.";
-                errorEl.classList.remove('hidden');
-                return;
-            }
+            currentUser = docSnap.data();
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+
+            currentPageId = 'page_' + currentUser.id;
+            localStorage.setItem('currentPageId', currentPageId);
+            loadPage();
+        } catch (error) {
+            errorEl.textContent = '로그인 오류가 발생했습니다.';
+            errorEl.classList.remove('hidden');
+        }
+    }
             
             // 로그인 성공
             currentUser = user;
@@ -690,18 +683,13 @@
 
             localStorage.removeItem('currentUser');
             localStorage.removeItem('currentPageId');
-
-            const menu = document.getElementById('settingsMenu');
-            if (menu) {
-                menu.classList.remove('active');
-            }
+            document.getElementById('settingsMenu').classList.remove('active');
 
             alert('로그아웃 되었습니다.');
             showLogin();
         }
         
-        import { setDoc, doc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-       
+
         // 페이지 생성
         async function createPage() {
             const name = document.getElementById('pageName').value;
@@ -718,23 +706,22 @@
             const pageId = 'page_' + currentUser.id;
             
             //Firestore에 페이지 저장
-            await setDoc(doc(db,"pages",pageld),{
-                id: pageld,
-                name,
-                ownerld: currentUser.id
+             try {
+            await setDoc(doc(window.db, "pages", pageId), { 
+                id: pageId, name, ownerId: currentUser.id  
             });
 
             currentPageId = pageId;
             localStorage.setItem('currentPageId', currentPageId);
-
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', currentPageId);   
-            window.history.replaceState({}, '', url);     
-
+           
             document.getElementById('pageName').value = '';
             alert('새 페이지가 생성되었습니다! 기존 메시지는 모두 삭제되었습니다.');
             loadPage();
+        } catch(error) {
+                 errorEl.textContent = '페이지 생성 오류가 발생했습니다.';
+            errorEl.classList.remove('hidden');
         }
+    }
 
         // 페이지 로드
         function loadPage() {
