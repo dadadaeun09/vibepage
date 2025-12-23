@@ -574,46 +574,45 @@
                 showLogin();
                 return;
             }
-        // 추가: 홈 화면으로 이동
-        function goToHome() {
+        function logout() {
+            currentUser = null;
+            sessionStorage.removeItem('currentUser');
+            alert('로그아웃 되었습니다.');
+            showWelcomeHome();
+        }
+        function loadPageById(pageId) {
             if (!currentUser) {
-                // 수정: 로그인 안 되어 있으면 첫 접속 홈으로
-                showWelcomeHome();
+                alert('이 페이지를 보려면 로그인이 필요합니다.');
+                showLogin();
                 return;
             }
-            document.getElementById('homeUserName').textContent = currentUser.name + '님 환영합니다!';
-            document.getElementById('settingsMenu').classList.remove('active');
-            window.history.pushState({}, '', BASE_URL);
-            showView('homeView');
+    // ... 페이지 로드
         }
-
-        // 수정: 내 페이지로 이동 - 페이지 없을 경우 안내 추가
         function goToMyPage() {
-            // 로그인하지 않은 경우
             if (!currentUser) {
                 alert('로그인이 필요합니다.');
                 showLogin();
                 return;
             }
-            
-            const myPageId = 'page_' + currentUser.id;
-            
-            // 내 페이지가 있는 경우
-            if (pages[myPageId]) {
-                // 개인 페이지 주소 생성 (URL에 페이지 ID 추가)
-                window.history.pushState({}, '', BASE_URL + '?page=' + myPageId);
-                loadPageById(myPageId);
-            } else {
-                // 수정: 페이지가 없는 경우 생성 안내
+    
+            if (!pages[myPageId]) {
                 alert('아직 페이지가 없습니다. 페이지를 만들어주세요!');
                 showCreatePage();
             }
         }
-
-        // 추가: 메뉴에서 내 페이지로 이동
-        function goToMyPageFromMenu() {
-            document.getElementById('settingsMenu').classList.remove('active');
-            goToMyPage();
+        function initPage() {
+            const pageId = urlParams.get('page');
+    
+            if (pageId && pages[pageId]) {
+            if (!currentUser) {
+                alert('로그인이 필요합니다. 로그인 후 다시 접속해주세요.');
+                showLogin();
+                return;
+            }
+                loadPageById(pageId);
+            } else {
+                showWelcomeHome();
+            }
         }
             
             if (!currentPageId || !pages[currentPageId]) {
