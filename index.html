@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>풍선 메시지</title>
+    <title>vibe page</title>
     <style>
         * {
             margin: 0;
@@ -376,8 +376,8 @@
     <div id="welcomeHomeView" class="container">
         <div class="card">
             <div class="home-content">
-                <h1>vibe page</h1>
-                <h2>welcome to our page!</h2>
+                <h1>Vibe Page</h1>
+                <h2>Welcome to our site!</h2>
                 <p>It's our letter page.</p>
                 <button onclick="showLogin()">LOG IN</button>
                 <button onclick="showPage()">MY PAGE</button>
@@ -389,67 +389,67 @@
     <!-- 로그인 화면 -->
     <div id="loginView" class="container hidden">
         <div class="card">
-            <h1>로그인</h1>
+            <h1>Log In</h1>
             <div class="input-group">
-                <input type="email" id="loginEmail" placeholder="메일 주소">
+                <input type="email" id="loginEmail" placeholder="Email Address">
             </div>
             <div class="input-group">
-                <input type="password" id="loginPassword" placeholder="비밀번호">
+                <input type="password" id="loginPassword" placeholder="Password">
             </div>
             <div id="loginError" class="error hidden"></div>
-            <button onclick="login()">로그인</button>
-            <button class="link-button" onclick="showSignup()">회원가입 하러 가기</button>
+            <button onclick="login()">Log In</button>
+            <button class="link-button" onclick="showSignup()">Sign Up</button>
         </div>
     </div>
 
     <!-- 회원가입 화면 -->
     <div id="signupView" class="container hidden">
         <div class="card">
-            <h1>회원가입</h1>
+            <h1>Sign Up</h1>
             <div class="input-group">
-                <input type="text" id="signupName" placeholder="이름">
+                <input type="text" id="signupName" placeholder="Name">
             </div>
             <div class="input-group">
-                <input type="email" id="signupEmail" placeholder="메일 주소">
+                <input type="email" id="signupEmail" placeholder="Email Address">
             </div>
             <div class="input-group">
-                <input type="password" id="signupPassword" placeholder="비밀번호">
+                <input type="password" id="signupPassword" placeholder="Password">
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="signupAgreed">
-                <label>이용약관에 동의합니다</label>
+                <label> 개인정보 수집 및 이용에 동의합니다. </label>
             </div>
             <div id="signupError" class="error hidden"></div>
-            <button onclick="signup()">가입하기</button>
-            <button class="link-button" onclick="showLogin()">로그인 하러 가기</button>
+            <button onclick="signup()">Sign Up</button>
+            <button class="link-button" onclick="showLogin()">Log In</button>
         </div>
     </div>
 
     <!-- 페이지 생성 화면 -->
     <div id="createPageView" class="container hidden">
         <div class="card">
-            <h1>페이지 만들기</h1>
+            <h1>Make a Page</h1>
             <div class="input-group">
-                <input type="text" id="pageName" placeholder="이름을 입력하세요">
+                <input type="text" id="pageName" placeholder="Page Name">
             </div>
             <div id="createPageError" class="error hidden"></div>
-            <button onclick="createPage()">생성</button>
-            <button class="link-button" onclick="logout()">로그아웃</button>
+            <button onclick="createPage()">Create</button>
+            <button class="link-button" onclick="logout()">Log Out</button>
         </div>
     </div>
 
     <!-- 디디봇 설명 화면 -->
     <div id="didibotView" class="container hidden">
         <div class="card">
-            <h1>🤖 디디봇</h1>
-            <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">비속어 필터링 시스템</p>
-            <p style="margin-bottom: 20px;">디디봇은 부적절한 메시지를 자동으로 감지하는 필터링 봇입니다.</p>
+            <h1>DIDIBOT</h1>
+            <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">비속어 필터링 봇</p>
+            <p style="margin-bottom: 20px;">디디봇은 욕설, 비속어, 성적 발언 등 부적절한 메시지를 자동으로 감지하고 차단하는 필터링 봇입니다.</p>
             <div style="background: #EFF6FF; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
                 <p style="font-weight: bold; margin-bottom: 10px;">작동 방식:</p>
-                <p>• 비속어가 3회 이상 포함된 메시지는 등록이 거부됩니다.</p>
-                <p>• 건전한 커뮤니티 문화를 만들어갑니다.</p>
+                <p>• 부적절한 언어가 3회 이상 포함된 메시지는 전송이 거부됩니다.</p>
+                <p>• 기분 좋게 편지를 주고 받아요!</p>
             </div>
-            <button onclick="backToPage()">돌아가기</button>
+            <button onclick="backToPage()">Home</button>
         </div>
     </div>
 
