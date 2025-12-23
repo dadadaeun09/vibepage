@@ -546,15 +546,11 @@
             document.getElementById('settingsMenu').classList.remove('active');
         }
 
-        function backToPage() {
+        function showWelcomeHome() {
             if (!currentUser || !currentPageId) {
                 showWelcomeHome();
                 return;
             }
-            showView('welcomeHomeView');
-        }
-    
-        function showWelcomeHome() {
             showView('welcomeHomeView');
             document.getElementById('settingsMenu').classList.remove('active');
         }
