@@ -349,43 +349,39 @@
         .string-yellow { background: #FCD34D; }
         .string-red { background: #EF4444; }
         .string-indigo { background: #818CF8; }
-        .hidden {
-            display: none;
-        }
-
     </style>
 </head>
 <body>
-<!-- [추가] 모든 페이지에서 공통으로 보이는 설정 버튼 -->
-<div class="settings-btn" onclick="toggleSettings()">
-    ⚙️
-</div>
-    <div id="settingsMenu" class="settings-menu">
-        <div class="menu-item" onclick="showWelcomeHome()"> HOME </div>
-        <div class="menu-item" onclick="showLogin()"> LOG IN </div>
-        <div class="menu-item" onclick="showSignup()"> SIGN UP </div>
-        <div class="menu-item" onclick="showPage()"> MY PAGE </div>
-        <div class="menu-item" onclick="showCreatePage()"> MAKE A PAGE </div>
-        <div class="menu-item" onclick="showDidibot()"> DIDIBOT </div>
-        <div class="menu-item" onclick="showLogin()"> LOG OUT </div>
+    <!-- 설정 버튼 -->
+    <div class="settings-btn" onclick="toggleSettings()">
+        ⚙️
     </div>
     
- <!-- 로그인 화면 (기존 그대로, settings-btn 없음) -->
+    <div id="settingsMenu" class="settings-menu">
+        <div class="menu-item" onclick="showWelcomeHome()">HOME</div>
+        <div class="menu-item" onclick="showLogin()">LOG IN</div>
+        <div class="menu-item" onclick="showSignup()">SIGN UP</div>
+        <div class="menu-item" onclick="showPage()">MY PAGE</div>
+        <div class="menu-item" onclick="showCreatePage()">MAKE A PAGE</div>
+        <div class="menu-item" onclick="showDidibot()">DIDIBOT</div>
+        <div class="menu-item" onclick="logout()">LOG OUT</div>
+    </div>
+    
+    <!-- 홈 화면 -->
     <div id="welcomeHomeView" class="container">
         <div class="card">
             <div class="home-content">
                 <h1>vibe page</h1>
                 <h2>welcome to our page!</h2>
                 <p>It's our letter page.</p>
-             <!-- [기존] 홈에서 로그인/회원가입으로 이동하는 버튼 -->
-                <button onclick="showLogin()"> LOG IN </button>
-                <button onclick="showPage()"> MY PAGE </button>
-                <button class="link-button" onclick="showSignup()"> SIGN UP </button>
+                <button onclick="showLogin()">LOG IN</button>
+                <button onclick="showPage()">MY PAGE</button>
+                <button class="link-button" onclick="showSignup()">SIGN UP</button>
             </div>
         </div>
     </div>
 
-  <!-- 로그인 화면 -->
+    <!-- 로그인 화면 -->
     <div id="loginView" class="container hidden">
         <div class="card">
             <h1>로그인</h1>
@@ -423,16 +419,6 @@
             <button class="link-button" onclick="showLogin()">로그인 하러 가기</button>
         </div>
     </div>
-    
-    <script>
-        function showView(viewId) {
-            document.querySelectorAll('.container, .page-container').forEach(el => {
-                el.classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
-        }
-        showView('welcomeHomeView');
-    </script>
 
     <!-- 페이지 생성 화면 -->
     <div id="createPageView" class="container hidden">
@@ -463,7 +449,7 @@
     </div>
 
     <!-- 개인 페이지 -->
-    <div id="pageView" class="container hidden">
+    <div id="pageView" class="page-container hidden">
         <div class="header">
             <h1 id="pageTitle"></h1>
         </div>
@@ -494,19 +480,22 @@
         </div>
     </div>
 
-<script>
-        // 데이터 저장소
-        let users = JSON.parse(localStorage.getItem('users') || '[]');
-        let pages = JSON.parse(localStorage.getItem('pages') || '{}');
-        let messages = JSON.parse(localStorage.getItem('messages') || '{}');
+    <script>
+        // ===== 중앙 데이터베이스 구조 =====
+        let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        let currentPageId = sessionStorage.getItem('currentPageId');
+        let currentPageId = localStorage.getItem('currentPageId');
 
         // 비속어 리스트
         const badWords = ['바보', '멍청', '싫어', '짜증', '나쁜', '죽어'];
         
         // 풍선 색상
         const colors = ['pink', 'purple', 'blue', 'green', 'yellow', 'red', 'indigo'];
+
+        // 중앙 DB 저장
+        function saveCentralDB() {
+            localStorage.setItem('centralDB', JSON.stringify(centralDB));
+        }
 
         // 비속어 카운트
         function countBadWords(text) {
@@ -556,68 +545,24 @@
             document.getElementById('settingsMenu').classList.remove('active');
         }
     
-    // # 추가: 설정 메뉴 닫기 함수
-        function closeSettings() {
-            const menu = document.getElementById('settingsMenu');
-            if (menu) {
-                menu.classList.remove('active');
-            }
-        }
-
-        // # 추가: 설정 메뉴에서 각 페이지로 이동하는 함수들
-        function goToWelcomeHome() {
-            showWelcomeHome();
-        }
-
-        function goToLogin() {
-            showLogin();
-        }
-
-        function goToSignup() {
-            showSignup();
-        }
-    
-        // # 수정: 내 페이지로 이동 (로그인 체크 + 페이지 존재 여부 체크)
-        function goToMyPage() {
-            closeSettings();
-            
-            // # 로그인하지 않은 경우
+        function showPage() {
             if (!currentUser) {
                 alert('로그인이 필요합니다.');
                 showLogin();
                 return;
             }
             
-            const myPageId = 'page_' + currentUser.id;
-            
-            // # 페이지가 없는 경우
-            if (!pages[myPageId]) {
-                alert('아직 페이지가 없습니다. 페이지를 만들어주세요!');
+            if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
                 return;
             }
             
-            // # 페이지가 있는 경우
-            currentPageId = myPageId;
-            sessionStorage.setItem('currentPageId', currentPageId);
             loadPage();
-        }
 
-        function goToCreatePage() {
-            closeSettings();
-            
-            // # 로그인하지 않은 경우
-            if (!currentUser) {
-                alert('로그인이 필요합니다.');
-                showLogin();
-                return;
+            const menu = document.getElementById('settingsMenu');
+            if (menu) {
+                menu.classList.remove('active');
             }
-            
-            showCreatePage();
-        }
-
-        function goToDidibot() {
-            showDidibot();
         }
 
         // 회원가입
@@ -642,23 +587,25 @@
                 return;
             }
 
+            // 이메일 중복 체크
             if (centralDB.users[email]) {
                 errorEl.textContent = '이미 존재하는 이메일입니다.';
                 errorEl.classList.remove('hidden');
                 return;
             }
 
+            // 사용자 정보를 이메일을 키로 저장
             const userId = Date.now();
-            centralDB.users[email] = {
-                id: userId,
-                name,
-                email,
-                password
+            centralDB.users[email] = { 
+                id: userId, 
+                name, 
+                email, 
+                password 
             };
-
-            saveCentralDB();
             
-            alert('회원가입 완료!');
+            saveCentralDB();
+
+            alert('회원가입 완료! 이메일로 로그인하세요.');
             document.getElementById('signupName').value = '';
             document.getElementById('signupEmail').value = '';
             document.getElementById('signupPassword').value = '';
@@ -674,17 +621,16 @@
 
             errorEl.classList.add('hidden');
 
+            // 이메일로 사용자 찾기
             const user = centralDB.users[email];
 
             if (!user || user.password !== password) {
-                 errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
+                errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
 
-        const user = users.find(u => u.email === email && u.password === password);
-
-        if (user) {
+            // 로그인 성공
             currentUser = user;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             document.getElementById('loginEmail').value = '';
@@ -693,35 +639,29 @@
             const pageId = 'page_' + user.id;
             if (centralDB.pages[pageId]) {
                 currentPageId = pageId;
-                sessionStorage.setItem('currentPageId', currentPageId);
+                localStorage.setItem('currentPageId', currentPageId);
                 loadPage();
             } else {
-                alert('페이지를 만들어주세요!');
                 showCreatePage();
-                }
-            } else {
-                errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
-                errorEl.classList.remove('hidden');
             }
+        }
 
         // 로그아웃
         function logout() {
-            // 로그인/페이지 상태 초기화
             currentUser = null;
             currentPageId = null;
 
-            sessionStorage.removeItem('currentUser');
-            sessionStorage.removeItem('currentPageId');
-            
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('currentPageId');
+
             const menu = document.getElementById('settingsMenu');
             if (menu) {
                 menu.classList.remove('active');
             }
 
             alert('로그아웃 되었습니다.');
-            showLogin(); // 또는 showWelcomeHome()으로 변경 가능
+            showLogin();
         }
-
 
         // 페이지 생성
         function createPage() {
@@ -735,64 +675,38 @@
                 errorEl.classList.remove('hidden');
                 return;
             }
-            // # 로그인 체크
-            if (!currentUser) {
-                alert('로그인이 필요합니다.');
-                showLogin();
-                return;
-            }
 
             const pageId = 'page_' + currentUser.id;
-            pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
-            messages[pageId] = messages[pageId] = [];
             
-            localStorage.setItem('pages', JSON.stringify(pages));
-            localStorage.setItem('messages', JSON.stringify(messages));
+            // 중앙 DB에 페이지 저장 및 메시지 초기화
+            centralDB.pages[pageId] = { 
+                id: pageId, 
+                name, 
+                ownerId: currentUser.id 
+            };
+            centralDB.messages[pageId] = []; // 기존 메시지 초기화
+            
+            saveCentralDB();
 
             currentPageId = pageId;
-            sessionStorage.setItem('currentPageId', currentPageId);
+            localStorage.setItem('currentPageId', currentPageId);
 
-             const url = new URL(window.location.href);
-             url.searchParams.set('page', currentPageId);   
-             window.history.replaceState({}, '', url);     
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', currentPageId);   
+            window.history.replaceState({}, '', url);     
 
             document.getElementById('pageName').value = '';
-
-            alert('새 페이지가 생성되었습니다. 기존 메세지는 모두 삭제되었습니다.');
-            
+            alert('새 페이지가 생성되었습니다! 기존 메시지는 모두 삭제되었습니다.');
             loadPage();
         }
 
         // 페이지 로드
         function loadPage() {
-            // # 로그인 체크
-            if (!currentUser) {
-                alert('로그인이 필요합니다.');
-                showLogin();
-                return;
-            }
-
-            // # 페이지 존재 여부 체크
-            if (!currentPageId || !pages[currentPageId]) {
-                alert('페이지를 찾을 수 없습니다.');
-                showCreatePage();
-                return;
-            }
-            const page = pages[currentPageId];
+            const page = centralDB.pages[currentPageId];
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
             document.getElementById('messageModalTitle').textContent = page.name + '에게';
             
             renderBalloons();
-            showView('pageView');
-        }
-        
-        // # 페이지 주인 확인
-            const isOwner = currentUser.id === page.ownerId;
-            
-            document.getElementById('pageTitle').textContent = page.name + '의 페이지';
-            document.getElementById('messageModalTitle').textContent = page.name + '에게';
-            
-            renderBalloons(isOwner);
             showView('pageView');
         }
 
@@ -801,14 +715,14 @@
             const container = document.getElementById('balloonsContainer');
             container.innerHTML = '';
 
-            const pageMessages = messages[currentPageId] || [];
+            const pageMessages = centralDB.messages[currentPageId] || [];
             pageMessages.forEach((msg, index) => {
                 const balloon = document.createElement('div');
                 balloon.className = 'balloon';
                 balloon.style.marginTop = (index % 3) * 20 + 'px';
                 balloon.style.marginLeft = (index % 4) * 15 + 'px';
 
-                const isOwner = currentUser && pages[currentPageId].ownerId === currentUser.id;
+                const isOwner = currentUser && centralDB.pages[currentPageId].ownerId === currentUser.id;
                 if (isOwner) {
                     balloon.onclick = () => toggleMessage(msg.id);
                 }
@@ -883,8 +797,9 @@
                 color: colors[Math.floor(Math.random() * colors.length)]
             };
 
-            messages[currentPageId].push(newMessage);
-            localStorage.setItem('messages', JSON.stringify(messages));
+            // 중앙 DB에 메시지 추가
+            centralDB.messages[currentPageId].push(newMessage);
+            saveCentralDB();
 
             alert('메시지가 등록되었습니다!');
             closeMessageForm();
@@ -892,7 +807,7 @@
         }
 
         // 초기 로드
-    showView('welcomeHomeView');
+        showView('welcomeHomeView');
     </script>
 </body>
 </html>
