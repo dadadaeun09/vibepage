@@ -703,7 +703,7 @@
             errorEl.classList.add('hidden');
 
             if (!name) {
-                errorEl.textContent = '이름을 입력해주세요.';
+                errorEl.textContent = 'Name';
                 errorEl.classList.remove('hidden');
                 return;
             }
@@ -805,7 +805,7 @@
 
             const badWordCount = countBadWords(content);
             if (badWordCount >= 3) {
-                errorEl.textContent = '디디봇: 부적절한 내용이 감지되었습니다! 메시지를 등록할 수 없습니다.';
+                errorEl.textContent = '디디봇이 부적절한 내용을 감지하였습니다. 메시지를 전송할 수 없습니다.';
                 errorEl.classList.remove('hidden');
                 return;
             }
@@ -824,7 +824,7 @@
             centralDB.messages[currentPageId].push(newMessage);
             saveCentralDB();
 
-            alert('메시지가 등록되었습니다!');
+            alert('메시지가 전송되었습니다!');
             closeMessageForm();
             renderBalloons();
         }
