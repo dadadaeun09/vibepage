@@ -580,6 +580,7 @@ window.db = db;
 
             currentPageId = myPageId;
     localStorage.setItem('currentPageId', currentPageId);
+    loadPage();
             
     // 현재 페이지가 정상인지 검사하는 안전장치        
             if (!currentPageId || !pages[currentPageId]) {
