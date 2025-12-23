@@ -556,6 +556,27 @@
             document.getElementById('settingsMenu').classList.remove('active');
         }
     
+    // # 추가: 설정 메뉴 닫기 함수
+        function closeSettings() {
+            const menu = document.getElementById('settingsMenu');
+            if (menu) {
+                menu.classList.remove('active');
+            }
+        }
+
+        // # 추가: 설정 메뉴에서 각 페이지로 이동하는 함수들
+        function goToWelcomeHome() {
+            showWelcomeHome();
+        }
+
+        function goToLogin() {
+            showLogin();
+        }
+
+        function goToSignup() {
+            showSignup();
+        }
+    
         // # 수정: 내 페이지로 이동 (로그인 체크 + 페이지 존재 여부 체크)
         function goToMyPage() {
             closeSettings();
