@@ -553,23 +553,6 @@
                 showLogin();
                 return;
             }
-    
-    // 현재 사용자의 페이지 ID 가져오기
-            const myPageId = 'page_' + currentUser.id;
-    
-    // 페이지가 있는지 확인
-            if (!pages[myPageId]) {
-                alert('아직 페이지가 없습니다. 페이지를 만들어주세요!');
-                showCreatePage();
-                return;
-            }
-    
-    // 페이지가 있으면 페이지 로드
-            currentPageId = myPageId;
-            sessionStorage.setItem('currentPageId', currentPageId);
-            loadPage();
-        }
-            
             
             if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
