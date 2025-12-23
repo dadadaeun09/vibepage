@@ -583,7 +583,15 @@
                 return;
             }
 
-            currentPageId = myPageId;
+            const pageId = 'page_' + currentUser.id;
+
+            if (!centralDB.pages[pageId]) {
+                alert('페이지를 먼저 생성해주세요.');
+                showCreatePage();
+                return;
+            }
+
+    currentPageId = PageId;
     localStorage.setItem('currentPageId', currentPageId);
     loadPage();
             
