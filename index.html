@@ -569,6 +569,14 @@
         function backToPage() {
             showView('pageView');
         }
+        function showWelcomeHome() {
+        showView('welcomeHomeView');
+        document.getElementById('settingsMenu').classList.remove('active');
+        }
+        function showPage() {
+        showView('pageView');
+        document.getElementById('settingsMenu').classList.remove('active');
+        }
 
         // 회원가입
         function signup() {
