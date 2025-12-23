@@ -109,7 +109,12 @@
             font-size: 14px;
             margin-top: 10px;
         }
-     
+        
+        /* 추가: 홈 화면 스타일 */
+        .home-content {
+            text-align: center;
+        }
+        
         .home-content h2 {
             color: #1F2937;
             margin-bottom: 20px;
@@ -120,16 +125,6 @@
             color: #6B7280;
             margin-bottom: 30px;
             font-size: 16px;
-        }
-        
-        .url-display {
-            background: #F3F4F6;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            word-break: break-all;
-            font-size: 14px;
-            color: #1F2937;
         }
         
         .page-container {
@@ -355,7 +350,6 @@
             display: none;
         }
         
-        /* 풍선 색상 */
         .color-pink { background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%); }
         .color-purple { background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%); }
         .color-blue { background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%); }
@@ -374,8 +368,21 @@
     </style>
 </head>
 <body>
+    <!-- 추가: 첫 접속 홈 화면 (로그인 전) -->
+    <div id="welcomeHomeView" class="container">
+        <div class="card">
+            <div class="home-content">
+                <h1>🎈 풍선 메시지</h1>
+                <h2>환영합니다!</h2>
+                <p>친구들에게 풍선 메시지를 남기고 받아보세요!</p>
+                <button onclick="showLogin()">로그인</button>
+                <button class="link-button" onclick="showSignup()">회원가입</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 로그인 화면 -->
-    <div id="loginView" class="container">
+    <div id="loginView" class="container hidden">
         <div class="card">
             <h1>로그인</h1>
             <div class="input-group">
@@ -413,7 +420,7 @@
         </div>
     </div>
 
-    <!-- 추가: 홈 화면 -->
+    <!-- 추가: 홈 화면 (로그인 후) -->
     <div id="homeView" class="container hidden">
         <div class="card">
             <div class="home-content">
@@ -504,21 +511,16 @@
         // 수정: GitHub Pages URL 기반으로 BASE_URL 설정
         const BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
         
-        // 수정: 서버 대신 GitHub API를 사용한 간단한 저장소 (실제로는 localStorage 사용)
-        // 실제 다중 기기 지원을 위해서는 백엔드 서버가 필요하지만, 
-        // 여기서는 localStorage를 사용하여 시뮬레이션합니다
+        // 수정: 회원가입한 사람 정보를 전역 저장소에 저장 (다른 기기에서 로그인 가능)
         let users = JSON.parse(localStorage.getItem('globalUsers') || '[]');
         let pages = JSON.parse(localStorage.getItem('globalPages') || '{}');
         let messages = JSON.parse(localStorage.getItem('globalMessages') || '{}');
+        // 수정: 현재 로그인한 사용자는 세션에만 저장 (다른 기기에서 개인 페이지 확인 시 로그인 필요)
         let currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         
-        // 비속어 리스트
         const badWords = ['바보', '멍청', '싫어', '짜증', '나쁜', '죽어'];
-        
-        // 풍선 색상
         const colors = ['pink', 'purple', 'blue', 'green', 'yellow', 'red', 'indigo'];
 
-        // 비속어 카운트
         function countBadWords(text) {
             let count = 0;
             badWords.forEach(word => {
@@ -529,7 +531,6 @@
             return count;
         }
 
-        // 화면 전환
         function showView(viewId) {
             document.querySelectorAll('.container, .page-container').forEach(el => {
                 el.classList.add('hidden');
@@ -557,7 +558,6 @@
         }
 
         function backToPage() {
-            // 수정: URL에서 pageId 가져오기
             const urlParams = new URLSearchParams(window.location.search);
             const pageId = urlParams.get('page');
             if (pageId && pages[pageId]) {
@@ -570,12 +570,12 @@
         // 추가: 홈 화면으로 이동
         function goToHome() {
             if (!currentUser) {
-                showLogin();
+                // 수정: 로그인 안 되어 있으면 첫 접속 홈으로
+                showWelcomeHome();
                 return;
             }
             document.getElementById('homeUserName').textContent = currentUser.name + '님 환영합니다!';
             document.getElementById('settingsMenu').classList.remove('active');
-            // URL 파라미터 제거
             window.history.pushState({}, '', BASE_URL);
             showView('homeView');
         }
@@ -589,7 +589,7 @@
             
             const myPageId = 'page_' + currentUser.id;
             if (pages[myPageId]) {
-                // 수정: URL에 페이지 ID 추가
+                // 추가: 개인 페이지 주소 생성 (URL에 페이지 ID 추가)
                 window.history.pushState({}, '', BASE_URL + '?page=' + myPageId);
                 loadPageById(myPageId);
             } else {
@@ -633,7 +633,7 @@
 
             const newUser = { id: Date.now(), name, email, password };
             users.push(newUser);
-            // 수정: 전역 저장소에 저장
+            // 수정: 회원가입한 사람 정보를 전역 저장소에 저장 (다른 기기에서 로그인 가능)
             localStorage.setItem('globalUsers', JSON.stringify(users));
 
             alert('회원가입 완료!');
@@ -641,10 +641,12 @@
             document.getElementById('signupEmail').value = '';
             document.getElementById('signupPassword').value = '';
             document.getElementById('signupAgreed').checked = false;
+            // 수정: 에러 메시지 숨기기
+            errorEl.classList.add('hidden');
             showLogin();
         }
 
-        // 수정: 로그인 - 세션에만 사용자 정보 저장
+        // 수정: 로그인 함수 전체
         function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -652,22 +654,29 @@
 
             errorEl.classList.add('hidden');
 
+            // 수정: 입력값 검증 추가
+            if (!email || !password) {
+                errorEl.textContent = '이메일과 비밀번호를 입력해주세요.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
             const user = users.find(u => u.email === email && u.password === password);
 
             if (user) {
                 currentUser = user;
-                // 수정: 세션 스토리지에만 저장 (탭 닫으면 로그아웃)
+                // 수정: 세션 스토리지에만 저장 (다른 기기에서 개인 페이지 확인 시 로그인 필요)
                 sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
 
-                // 수정: URL에 페이지 파라미터가 있으면 해당 페이지로, 없으면 홈으로
                 const urlParams = new URLSearchParams(window.location.search);
                 const pageId = urlParams.get('page');
                 
                 if (pageId && pages[pageId]) {
                     loadPageById(pageId);
                 } else {
+                    // 수정: 로그인 후 홈 화면으로 이동
                     goToHome();
                 }
             } else {
@@ -676,17 +685,17 @@
             }
         }
 
-        // 수정: 로그아웃 - 세션 정보만 삭제
+        // 수정: 로그아웃
         function logout() {
             currentUser = null;
             sessionStorage.removeItem('currentUser');
             document.getElementById('settingsMenu').classList.remove('active');
-            // URL 파라미터 제거
             window.history.pushState({}, '', BASE_URL);
-            showLogin();
+            // 수정: 로그아웃 시 첫 접속 홈으로
+            showWelcomeHome();
         }
 
-        // 수정: 페이지 생성 - 초기화 방지 및 전역 저장
+        // 수정: 페이지 생성 - 페이지 새로 만들었을 때 내용 초기화하지 않음
         function createPage() {
             const name = document.getElementById('pageName').value;
             const errorEl = document.getElementById('createPageError');
@@ -701,12 +710,11 @@
 
             const pageId = 'page_' + currentUser.id;
             
-            // 수정: 기존 페이지가 있는지 확인하고, 있으면 덮어쓰지 않음
+            // 수정: 기존 페이지가 있는지 확인하고, 있으면 덮어쓰지 않음 (내용 초기화 방지)
             if (!pages[pageId]) {
                 pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
                 messages[pageId] = [];
             } else {
-                // 이미 페이지가 있으면 이름만 업데이트
                 pages[pageId].name = name;
             }
             
@@ -716,7 +724,7 @@
 
             document.getElementById('pageName').value = '';
             
-            // 수정: URL에 페이지 ID 추가하고 페이지로 이동
+            // 추가: 개인 페이지 주소 생성 (URL에 페이지 ID 추가)
             window.history.pushState({}, '', BASE_URL + '?page=' + pageId);
             loadPageById(pageId);
         }
@@ -732,23 +740,13 @@
             const page = pages[pageId];
             const isOwner = currentUser && page.ownerId === currentUser.id;
 
-            // 수정: 페이지 주인이 아니면 로그인 필요 여부 확인
-            if (!currentUser) {
-                // 비로그인 상태에서는 메시지 작성만 가능
-                document.getElementById('pageTitle').textContent = page.name + '의 페이지';
-                document.getElementById('messageModalTitle').textContent = page.name + '에게';
-                renderBalloons(pageId, false);
-                showView('pageView');
-                return;
-            }
-
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
             document.getElementById('messageModalTitle').textContent = page.name + '에게';
             renderBalloons(pageId, isOwner);
             showView('pageView');
         }
 
-        // 수정: 풍선 렌더링 - 권한에 따라 다르게 표시
+        // 수정: 풍선 렌더링 - 페이지 주인만 메시지 내용 확인 가능
         function renderBalloons(pageId, isOwner) {
             const container = document.getElementById('balloonsContainer');
             container.innerHTML = '';
@@ -763,12 +761,12 @@
                 balloon.style.marginTop = (index % 3) * 20 + 'px';
                 balloon.style.marginLeft = (index % 4) * 15 + 'px';
 
-                // 수정: 페이지 주인만 메시지 열람 가능
+                // 수정: 페이지 주인만 풍선 클릭해서 메시지 열람 가능
                 if (isOwner) {
                     balloon.onclick = () => toggleMessage(msg.id);
                 }
 
-                balloon.innerHTML = `
+               balloon.innerHTML = `
                     <div class="balloon-shape color-${msg.color}">🎈</div>
                     <div class="balloon-string string-${msg.color}"></div>
                     ${isOwner ? `
@@ -897,4 +895,4 @@
     initPage();
 </script>
 </body>
-</html>
+</html></parameter>
