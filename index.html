@@ -352,35 +352,6 @@
     </style>
 </head>
 <body>
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import {
-      getFirestore,
-      setDoc,
-      getDoc,
-      doc,
-      collection,
-      addDoc,
-      getDocs
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDWhpotjBRzaF2fAW9w1l5qwmzB0Cd9gWA",
-    authDomain: "vibe-page.firebaseapp.com",
-    projectId: "vibe-page",
-    storageBucket: "vibe-page.firebasestorage.app",
-    messagingSenderId: "332174000512",
-    appId: "1:332174000512:web:df67d0153bf1e930ad0165"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-</script>    
     <!-- 설정 버튼 -->
     <div class="settings-btn" onclick="toggleSettings()">
         ⚙️
@@ -511,8 +482,7 @@
 
     <script>
         // ===== 중앙 데이터베이스 구조 =====
-        let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages":
-{}, "messages": {}}');
+        let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         let currentPageId = localStorage.getItem('currentPageId');
 
@@ -583,18 +553,14 @@
                 showLogin();
                 return;
             }
-
-            currentPageId = myPageId;
-    localStorage.setItem('currentPageId', currentPageId);
-    loadPage();
-                    
+            
             if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
                 return;
             }
             
             loadPage();
-            
+
             const menu = document.getElementById('settingsMenu');
             if (menu) {
                 menu.classList.remove('active');
@@ -623,6 +589,7 @@
                 return;
             }
 
+            // 이메일 중복 체크
             if (centralDB.users[email]) {
                 errorEl.textContent = '이미 존재하는 이메일입니다.';
                 errorEl.classList.remove('hidden');
