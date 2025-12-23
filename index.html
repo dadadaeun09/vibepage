@@ -735,7 +735,7 @@
 
             const pageId = 'page_' + currentUser.id;
             pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
-            messages[pageId] = messages[pageId] || [];
+            messages[pageId] = messages[pageId] = [];
             
             localStorage.setItem('pages', JSON.stringify(pages));
             localStorage.setItem('messages', JSON.stringify(messages));
@@ -748,6 +748,9 @@
              window.history.replaceState({}, '', url);     
 
             document.getElementById('pageName').value = '';
+
+            alert('새 페이지가 생성되었습니다. 기존 메세지는 모두 삭제되었습니다.');
+            
             loadPage();
         }
 
