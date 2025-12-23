@@ -472,13 +472,12 @@
                 <button class="close-btn" onclick="closeMessageForm()">✕</button>
             </div>
             <div class="input-group">
-                <textarea id="messageContent" placeholder="메시지를 입력하세요"></textarea>
+                <textarea id="messageContent" placeholder="Message"></textarea>
             </div>
             <div class="flex-row">
-                <input type="text" id="messageAuthor" placeholder="이름">
+                <input type="text" id="messageAuthor" placeholder="From">
                 <button onclick="submitMessage()">
-                    <span>📤</span>
-                    <span>등록</span>
+                    <span>Send</span>
                 </button>
             </div>
             <div id="messageError" class="error hidden"></div>
@@ -533,7 +532,7 @@
 
         function showCreatePage() {
             if (!currentUser) {
-                alert('로그인이 필요합니다.');
+                alert('로그인 후 이용 가능합니다.');
                 showLogin();
                 return;
             }
@@ -562,7 +561,7 @@
             
             // 로그인 체크
             if (!currentUser) {
-                alert('로그인이 필요합니다.');
+                alert('로그인 후 이용 가능합니다.');
                 showLogin();
                 return;
             }
@@ -586,7 +585,7 @@
             // 페이지 정보 업데이트
             const page = centralDB.pages[currentPageId];
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
-            document.getElementById('messageModalTitle').textContent = page.name + '에게';
+            document.getElementById('messageModalTitle').textContent = 'TO.' + page.name;
             
             // 풍선 렌더링
             renderBalloons();
@@ -615,7 +614,7 @@
             }
 
             if (!agreed) {
-                errorEl.textContent = '이용약관에 동의해주세요.';
+                errorEl.textContent = '개인정보 수집에 동의해주세요.';
                 errorEl.classList.remove('hidden');
                 return;
             }
@@ -638,7 +637,7 @@
             
             saveCentralDB();
 
-            alert('회원가입 완료! 이메일로 로그인하세요.');
+            alert('회원가입이 완료되었습니다. 로그인 후 이용해주세요.');
             document.getElementById('signupName').value = '';
             document.getElementById('signupEmail').value = '';
             document.getElementById('signupPassword').value = '';
