@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vibe page</title>
+    <title>풍선 메시지</title>
     <style>
         * {
             margin: 0;
@@ -17,7 +17,7 @@
         
         .container {
             min-height: 100vh;
-            background: A0D1F7;
+            background: linear-gradient(135deg, #60A5FA 0%, #93C5FD 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -108,6 +108,33 @@
             color: #DC2626;
             font-size: 14px;
             margin-top: 10px;
+        }
+        
+        /* 추가: 홈 화면 스타일 */
+        .home-content {
+            text-align: center;
+        }
+        
+        .home-content h2 {
+            color: #1F2937;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .home-content p {
+            color: #6B7280;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .url-display {
+            background: #F3F4F6;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            font-size: 14px;
+            color: #1F2937;
         }
         
         .page-container {
@@ -391,6 +418,19 @@
         </div>
     </div>
 
+    <!-- 추가: 홈 화면 -->
+    <div id="homeView" class="container hidden">
+        <div class="card">
+            <div class="home-content">
+                <h1>🎈 풍선 메시지</h1>
+                <h2 id="homeUserName"></h2>
+                <p>나만의 페이지를 만들어 친구들의 메시지를 받아보세요!</p>
+                <button onclick="goToMyPage()">내 페이지로 가기</button>
+                <button class="link-button" onclick="logout()">로그아웃</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 페이지 생성 화면 -->
     <div id="createPageView" class="container hidden">
         <div class="card">
@@ -400,7 +440,8 @@
             </div>
             <div id="createPageError" class="error hidden"></div>
             <button onclick="createPage()">생성</button>
-            <button class="link-button" onclick="logout()">로그아웃</button>
+            <!-- 수정: 홈으로 돌아가기 버튼 추가 -->
+            <button class="link-button" onclick="goToHome()">홈으로 돌아가기</button>
         </div>
     </div>
 
@@ -429,11 +470,13 @@
             ⚙️
         </div>
         
+        <!-- 수정: 설정 메뉴에 홈/내 페이지 버튼 추가 -->
         <div id="settingsMenu" class="settings-menu">
+            <div class="menu-item" onclick="goToHome()">홈 화면으로</div>
+            <div class="menu-item" onclick="goToMyPageFromMenu()">내 페이지로</div>
             <div class="menu-item" onclick="showSignup()">회원가입</div>
-            <div class="menu-item" onclick="logout()">로그인</div>
+            <div class="menu-item" onclick="logout()">로그아웃</div>
             <div class="menu-item" onclick="showDidibot()">디디봇</div>
-            <div class="menu-item" onclick="showCreatePage()">자신의 페이지 만들기</div>
         </div>
         
         <div id="balloonsContainer" class="balloons"></div>
@@ -463,13 +506,17 @@
     </div>
 
     <script>
-        // 데이터 저장소
-        let users = JSON.parse(localStorage.getItem('users') || '[]');
-        let pages = JSON.parse(localStorage.getItem('pages') || '{}');
-        let messages = JSON.parse(localStorage.getItem('messages') || '{}');
-        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        let currentPageId = localStorage.getItem('currentPageId');
-
+        // 수정: GitHub Pages URL 기반으로 BASE_URL 설정
+        const BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
+        
+        // 수정: 서버 대신 GitHub API를 사용한 간단한 저장소 (실제로는 localStorage 사용)
+        // 실제 다중 기기 지원을 위해서는 백엔드 서버가 필요하지만, 
+        // 여기서는 localStorage를 사용하여 시뮬레이션합니다
+        let users = JSON.parse(localStorage.getItem('globalUsers') || '[]');
+        let pages = JSON.parse(localStorage.getItem('globalPages') || '{}');
+        let messages = JSON.parse(localStorage.getItem('globalMessages') || '{}');
+        let currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        
         // 비속어 리스트
         const badWords = ['바보', '멍청', '싫어', '짜증', '나쁜', '죽어'];
         
@@ -515,10 +562,53 @@
         }
 
         function backToPage() {
-            showView('pageView');
+            // 수정: URL에서 pageId 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const pageId = urlParams.get('page');
+            if (pageId && pages[pageId]) {
+                loadPageById(pageId);
+            } else {
+                showView('pageView');
+            }
         }
 
-        // 회원가입
+        // 추가: 홈 화면으로 이동
+        function goToHome() {
+            if (!currentUser) {
+                showLogin();
+                return;
+            }
+            document.getElementById('homeUserName').textContent = currentUser.name + '님 환영합니다!';
+            document.getElementById('settingsMenu').classList.remove('active');
+            // URL 파라미터 제거
+            window.history.pushState({}, '', BASE_URL);
+            showView('homeView');
+        }
+
+        // 추가: 내 페이지로 이동
+        function goToMyPage() {
+            if (!currentUser) {
+                showLogin();
+                return;
+            }
+            
+            const myPageId = 'page_' + currentUser.id;
+            if (pages[myPageId]) {
+                // 수정: URL에 페이지 ID 추가
+                window.history.pushState({}, '', BASE_URL + '?page=' + myPageId);
+                loadPageById(myPageId);
+            } else {
+                showCreatePage();
+            }
+        }
+
+        // 추가: 메뉴에서 내 페이지로 이동
+        function goToMyPageFromMenu() {
+            document.getElementById('settingsMenu').classList.remove('active');
+            goToMyPage();
+        }
+
+        // 수정: 회원가입 - 전역 저장소에 저장
         function signup() {
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
@@ -546,8 +636,10 @@
                 return;
             }
 
-            users.push({ id: Date.now(), name, email, password });
-            localStorage.setItem('users', JSON.stringify(users));
+            const newUser = { id: Date.now(), name, email, password };
+            users.push(newUser);
+            // 수정: 전역 저장소에 저장
+            localStorage.setItem('globalUsers', JSON.stringify(users));
 
             alert('회원가입 완료!');
             document.getElementById('signupName').value = '';
@@ -557,7 +649,7 @@
             showLogin();
         }
 
-        // 로그인
+        // 수정: 로그인 - 세션에만 사용자 정보 저장
         function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -569,17 +661,19 @@
 
             if (user) {
                 currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                // 수정: 세션 스토리지에만 저장 (탭 닫으면 로그아웃)
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
 
-                const pageId = 'page_' + user.id;
-                if (pages[pageId]) {
-                    currentPageId = pageId;
-                    localStorage.setItem('currentPageId', currentPageId);
-                    loadPage();
+                // 수정: URL에 페이지 파라미터가 있으면 해당 페이지로, 없으면 홈으로
+                const urlParams = new URLSearchParams(window.location.search);
+                const pageId = urlParams.get('page');
+                
+                if (pageId && pages[pageId]) {
+                    loadPageById(pageId);
                 } else {
-                    showCreatePage();
+                    goToHome();
                 }
             } else {
                 errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
@@ -587,17 +681,17 @@
             }
         }
 
-        // 로그아웃
+        // 수정: 로그아웃 - 세션 정보만 삭제
         function logout() {
             currentUser = null;
-            currentPageId = null;
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('currentPageId');
+            sessionStorage.removeItem('currentUser');
             document.getElementById('settingsMenu').classList.remove('active');
+            // URL 파라미터 제거
+            window.history.pushState({}, '', BASE_URL);
             showLogin();
         }
 
-        // 페이지 생성
+        // 수정: 페이지 생성 - 초기화 방지 및 전역 저장
         function createPage() {
             const name = document.getElementById('pageName').value;
             const errorEl = document.getElementById('createPageError');
@@ -611,42 +705,70 @@
             }
 
             const pageId = 'page_' + currentUser.id;
-            pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
-            messages[pageId] = messages[pageId] || [];
             
-            localStorage.setItem('pages', JSON.stringify(pages));
-            localStorage.setItem('messages', JSON.stringify(messages));
-
-            currentPageId = pageId;
-            localStorage.setItem('currentPageId', currentPageId);
+            // 수정: 기존 페이지가 있는지 확인하고, 있으면 덮어쓰지 않음
+            if (!pages[pageId]) {
+                pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
+                messages[pageId] = [];
+            } else {
+                // 이미 페이지가 있으면 이름만 업데이트
+                pages[pageId].name = name;
+            }
+            
+            // 수정: 전역 저장소에 저장
+            localStorage.setItem('globalPages', JSON.stringify(pages));
+            localStorage.setItem('globalMessages', JSON.stringify(messages));
 
             document.getElementById('pageName').value = '';
-            loadPage();
+            
+            // 수정: URL에 페이지 ID 추가하고 페이지로 이동
+            window.history.pushState({}, '', BASE_URL + '?page=' + pageId);
+            loadPageById(pageId);
         }
 
-        // 페이지 로드
-        function loadPage() {
-            const page = pages[currentPageId];
+        // 추가: 페이지 ID로 페이지 로드
+        function loadPageById(pageId) {
+            if (!pages[pageId]) {
+                alert('존재하지 않는 페이지입니다.');
+                goToHome();
+                return;
+            }
+
+            const page = pages[pageId];
+            const isOwner = currentUser && page.ownerId === currentUser.id;
+
+            // 수정: 페이지 주인이 아니면 로그인 필요 여부 확인
+            if (!currentUser) {
+                // 비로그인 상태에서는 메시지 작성만 가능
+                document.getElementById('pageTitle').textContent = page.name + '의 페이지';
+                document.getElementById('messageModalTitle').textContent = page.name + '에게';
+                renderBalloons(pageId, false);
+                showView('pageView');
+                return;
+            }
+
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
             document.getElementById('messageModalTitle').textContent = page.name + '에게';
-            
-            renderBalloons();
+            renderBalloons(pageId, isOwner);
             showView('pageView');
         }
 
-        // 풍선 렌더링
-        function renderBalloons() {
+        // 수정: 풍선 렌더링 - 권한에 따라 다르게 표시
+        function renderBalloons(pageId, isOwner) {
             const container = document.getElementById('balloonsContainer');
             container.innerHTML = '';
 
-            const pageMessages = messages[currentPageId] || [];
+            if (!pageId) pageId = getCurrentPageId();
+            if (!messages[pageId]) messages[pageId] = [];
+
+            const pageMessages = messages[pageId];
             pageMessages.forEach((msg, index) => {
                 const balloon = document.createElement('div');
                 balloon.className = 'balloon';
                 balloon.style.marginTop = (index % 3) * 20 + 'px';
                 balloon.style.marginLeft = (index % 4) * 15 + 'px';
 
-                const isOwner = currentUser && pages[currentPageId].ownerId === currentUser.id;
+                // 수정: 페이지 주인만 메시지 열람 가능
                 if (isOwner) {
                     balloon.onclick = () => toggleMessage(msg.id);
                 }
@@ -654,89 +776,130 @@
                 balloon.innerHTML = `
                     <div class="balloon-shape color-${msg.color}">🎈</div>
                     <div class="balloon-string string-${msg.color}"></div>
+                    ${isOwner ? `
                     <div id="message-${msg.id}" class="balloon-message">
                         <button class="message-close" onclick="event.stopPropagation(); closeMessage(${msg.id})">✕</button>
                         <p style="margin-bottom: 12px; color: #1F2937;">${msg.content}</p>
                         <p style="text-align: right; font-size: 14px; color: #6B7280; font-weight: bold;">- ${msg.authorName}</p>
                     </div>
+                    ` : ''}
                 `;
 
                 container.appendChild(balloon);
             });
         }
 
-        // 메시지 토글
+        // 메시지
+        <invoke name="artifacts">
+<parameter name="command">update</parameter>
+<parameter name="id">simple_html_guide</parameter>
+<parameter name="old_str">        // 메시지</parameter>
+<parameter name="new_str">        // 메시지 토글
         function toggleMessage(msgId) {
             const msgEl = document.getElementById('message-' + msgId);
-            msgEl.classList.toggle('active');
+            if (msgEl) msgEl.classList.toggle('active');
         }
-
         function closeMessage(msgId) {
-            const msgEl = document.getElementById('message-' + msgId);
-            msgEl.classList.remove('active');
+        const msgEl = document.getElementById('message-' + msgId);
+        if (msgEl) msgEl.classList.remove('active');
+    }
+
+    // 설정 메뉴 토글
+    function toggleSettings() {
+        document.getElementById('settingsMenu').classList.toggle('active');
+    }
+
+    // 추가: 현재 페이지 ID 가져오기
+    function getCurrentPageId() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('page');
+    }
+
+    // 수정: 메시지 폼 열기 - 타인도 메시지 작성 가능
+    function showMessageForm() {
+        const pageId = getCurrentPageId();
+        if (!pageId || !pages[pageId]) {
+            alert('페이지를 찾을 수 없습니다.');
+            return;
+        }
+        document.getElementById('messageModal').classList.add('active');
+    }
+
+    function closeMessageForm() {
+        document.getElementById('messageModal').classList.remove('active');
+        document.getElementById('messageContent').value = '';
+        document.getElementById('messageAuthor').value = '';
+        document.getElementById('messageError').classList.add('hidden');
+    }
+
+    // 수정: 메시지 등록 - 전역 저장소에 저장
+    function submitMessage() {
+        const content = document.getElementById('messageContent').value;
+        const authorName = document.getElementById('messageAuthor').value;
+        const errorEl = document.getElementById('messageError');
+        const pageId = getCurrentPageId();
+
+        errorEl.classList.add('hidden');
+
+        if (!content || !authorName) {
+            errorEl.textContent = '모든 항목을 입력해주세요.';
+            errorEl.classList.remove('hidden');
+            return;
         }
 
-        // 설정 메뉴 토글
-        function toggleSettings() {
-            document.getElementById('settingsMenu').classList.toggle('active');
+        const badWordCount = countBadWords(content);
+        if (badWordCount >= 3) {
+            errorEl.textContent = '디디봇: 부적절한 내용이 감지되었습니다! 메시지를 등록할 수 없습니다.';
+            errorEl.classList.remove('hidden');
+            return;
         }
 
-        // 메시지 폼 열기
-        function showMessageForm() {
-            document.getElementById('messageModal').classList.add('active');
-        }
+        const newMessage = {
+            id: Date.now(),
+            content,
+            authorName,
+            color: colors[Math.floor(Math.random() * colors.length)]
+        };
 
-        function closeMessageForm() {
-            document.getElementById('messageModal').classList.remove('active');
-            document.getElementById('messageContent').value = '';
-            document.getElementById('messageAuthor').value = '';
-            document.getElementById('messageError').classList.add('hidden');
-        }
+        if (!messages[pageId]) messages[pageId] = [];
+        messages[pageId].push(newMessage);
+        
+        // 수정: 전역 저장소에 저장
+        localStorage.setItem('globalMessages', JSON.stringify(messages));
 
-        // 메시지 등록
-        function submitMessage() {
-            const content = document.getElementById('messageContent').value;
-            const authorName = document.getElementById('messageAuthor').value;
-            const errorEl = document.getElementById('messageError');
+        alert('메시지가 등록되었습니다!');
+        closeMessageForm();
+        
+        // 수정: 페이지 새로고침하여 최신 메시지 표시
+        const page = pages[pageId];
+        const isOwner = currentUser && page.ownerId === currentUser.id;
+        renderBalloons(pageId, isOwner);
+    }
 
-            errorEl.classList.add('hidden');
+    // 수정: 초기 로드 - URL 파라미터 확인
+    function initPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('page');
 
-            if (!content || !authorName) {
-                errorEl.textContent = '모든 항목을 입력해주세요.';
-                errorEl.classList.remove('hidden');
-                return;
+        if (pageId && pages[pageId]) {
+            // 페이지 URL로 접근한 경우
+            if (currentUser) {
+                loadPageById(pageId);
+            } else {
+                // 수정: 비로그인 상태에서는 메시지 작성만 가능하도록 페이지 표시
+                loadPageById(pageId);
             }
-
-            const badWordCount = countBadWords(content);
-            if (badWordCount >= 3) {
-                errorEl.textContent = '디디봇: 부적절한 내용이 감지되었습니다! 메시지를 등록할 수 없습니다.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
-
-            const newMessage = {
-                id: Date.now(),
-                content,
-                authorName,
-                color: colors[Math.floor(Math.random() * colors.length)]
-            };
-
-            messages[currentPageId].push(newMessage);
-            localStorage.setItem('messages', JSON.stringify(messages));
-
-            alert('메시지가 등록되었습니다!');
-            closeMessageForm();
-            renderBalloons();
-        }
-
-        // 초기 로드
-        if (currentUser && currentPageId && pages[currentPageId]) {
-            loadPage();
         } else if (currentUser) {
-            showCreatePage();
+            // 로그인 상태에서 일반 접근
+            goToHome();
         } else {
+            // 비로그인 상태에서 일반 접근
             showLogin();
         }
-    </script>
+    }
+
+    // 초기 로드
+    initPage();
+</script>
 </body>
-</html>
+</html></parameter>
