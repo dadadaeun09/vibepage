@@ -352,6 +352,35 @@
     </style>
 </head>
 <body>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import {
+      getFirestore,
+      setDoc,
+      getDoc,
+      doc,
+      collection,
+      addDoc,
+      getDocs
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWhpotjBRzaF2fAW9w1l5qwmzB0Cd9gWA",
+    authDomain: "vibe-page.firebaseapp.com",
+    projectId: "vibe-page",
+    storageBucket: "vibe-page.firebasestorage.app",
+    messagingSenderId: "332174000512",
+    appId: "1:332174000512:web:df67d0153bf1e930ad0165"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+</script>
     <!-- 설정 버튼 -->
     <div class="settings-btn" onclick="toggleSettings()">
         ⚙️
@@ -554,22 +583,10 @@
                 return;
             }
 
-    // 현재 사용자의 페이지 ID 가져오기
-            const myPageId = 'page_' + currentUser.id;
-
-    // 페이지가 있는지 확인
-            if (!pages[myPageId]) {
-                alert('아직 페이지가 없습니다. 페이지를 만들어주세요!');
-                showCreatePage();
-                return;
-            }
-
-    // 페이지가 있으면 페이지 로드
             currentPageId = myPageId;
-            sessionStorage.setItem('currentPageId', currentPageId);
-            loadPage();
-        }  
-        
+    localStorage.setItem('currentPageId', currentPageId);
+    loadPage();
+            
             if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
                 return;
