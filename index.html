@@ -675,6 +675,10 @@
             currentPageId = pageId;
             localStorage.setItem('currentPageId', currentPageId);
 
+             const url = new URL(window.location.href);
+             url.searchParams.set('page', currentPageId);   
+             window.history.replaceState({}, '', url);     
+
             document.getElementById('pageName').value = '';
             loadPage();
         }
@@ -785,7 +789,27 @@
         }
 
         // 초기 로드
-        showView('welcomeHomeView');
+function showHome() {
+  showView('welcomeHomeView');
+  document.getElementById('settingsMenu').classList.remove('active');
+}
+
+// ---- 여기부터 초기 로드 부분 ----
+const urlParams = new URLSearchParams(window.location.search);
+const urlPageId = urlParams.get('page');
+
+if (urlPageId && pages[urlPageId]) {
+    currentPageId = urlPageId;
+    localStorage.setItem('currentPageId', currentPageId);
+    loadPage();
+} else if (currentUser && currentPageId && pages[currentPageId]) {
+    loadPage();
+} else if (currentUser) {
+    showCreatePage();
+} else {
+    // 여기서 '처음 들어왔을 때 어디로 보낼지'만 결정해 주면 됨
+    showView('welcomeHomeView');   // 또는 showLogin();
+}
     </script>
 </body>
 </html>
