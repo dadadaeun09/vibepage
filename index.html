@@ -352,17 +352,8 @@
     </style>
 </head>
 <body>
-    <!-- 홈 화면 -->
-<div id="homeView" class="container">
-    <div class="card">
-        <h1>환영합니다 👋</h1>
-        <p style="margin-bottom: 20px;">원하시는 작업을 선택해주세요</p>
-        <button onclick="goLogin()">로그인</button>
-        <button onclick="goSignup()">회원가입</button>
-    </div>
-</div>
-    <!-- 로그인 화면 -->
-    <div id="loginView" class="container hidden">
+  <!-- 로그인 화면 -->
+    <div id="loginView" class="container">
         <div class="card">
             <h1>로그인</h1>
             <div class="input-group">
@@ -471,37 +462,8 @@
             <div id="messageError" class="error hidden"></div>
         </div>
     </div>
+
 <script>
-    function hideAllViews() {
-        document.getElementById('homeView').classList.add('hidden');
-        document.getElementById('loginView').classList.add('hidden');
-        document.getElementById('signupView').classList.add('hidden');
-        document.getElementById('createPageView').classList.add('hidden');
-        document.getElementById('pageView').classList.add('hidden');
-        document.getElementById('didibotView').classList.add('hidden');
-    }
-
-    function goLogin() {
-        hideAllViews();
-        document.getElementById('loginView').classList.remove('hidden');
-    }
-
-    function goSignup() {
-        hideAllViews();
-        document.getElementById('signupView').classList.remove('hidden');
-    }
-
-    // 기존 버튼과 연결
-    function showLogin() {
-        goLogin();
-    }
-
-    function showSignup() {
-        goSignup();
-    }
-    <script>
-    function login() { ... }
-</script>
         // 데이터 저장소
         let users = JSON.parse(localStorage.getItem('users') || '[]');
         let pages = JSON.parse(localStorage.getItem('pages') || '{}');
