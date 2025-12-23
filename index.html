@@ -581,14 +581,12 @@ window.db = db;
             currentPageId = myPageId;
     localStorage.setItem('currentPageId', currentPageId);
     loadPage();
-            
-    // 현재 페이지가 정상인지 검사하는 안전장치        
+                    
             if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
                 return;
             }
             
-    // document는 추가된 게 아니라 매번 새로 호출하는 거라 에러가 나면 전부 멈춤        
             loadPage();
             
             const menu = document.getElementById('settingsMenu');
@@ -619,7 +617,6 @@ window.db = db;
                 return;
             }
 
-            // 이메일 중복 체크, try로 바꾸면 의미가 깨짐
             if (centralDB.users[email]) {
                 errorEl.textContent = '이미 존재하는 이메일입니다.';
                 errorEl.classList.remove('hidden');
