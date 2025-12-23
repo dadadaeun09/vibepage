@@ -658,14 +658,27 @@
         }
 
         // 로그아웃
+        // 로그아웃
         function logout() {
+            // 로그인/페이지 상태 초기화
             currentUser = null;
             currentPageId = null;
+
             localStorage.removeItem('currentUser');
             localStorage.removeItem('currentPageId');
-            document.getElementById('settingsMenu').classList.remove('active');
-            showLogin();
+
+            // 필요하면 메시지도 초기화하고 싶을 때 (선택)
+            // localStorage.removeItem('messages');
+
+            const menu = document.getElementById('settingsMenu');
+            if (menu) {
+                menu.classList.remove('active');
+            }
+
+            alert('로그아웃 되었습니다.');
+            showLogin(); // 또는 showWelcomeHome()으로 변경 가능
         }
+
 
         // 페이지 생성
         function createPage() {
