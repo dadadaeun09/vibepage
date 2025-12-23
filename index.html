@@ -553,6 +553,10 @@
                 showLogin();
                 return;
             }
+
+            currentPageId = myPageId;
+    localStorage.setItem('currentPageId', currentPageId);
+    loadPage();
             
             if (!currentPageId || !pages[currentPageId]) {
                 showCreatePage();
