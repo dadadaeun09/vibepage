@@ -380,6 +380,7 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+window.db = db;
 </script>    
     <!-- 설정 버튼 -->
     <div class="settings-btn" onclick="toggleSettings()">
