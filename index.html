@@ -556,64 +556,47 @@
             document.getElementById('settingsMenu').classList.remove('active');
         }
     
-        function showPage() {
-            if (!currentUser) {
-                alert('로그인이 필요합니다.');
-                showLogin();
-                return;
-            }
-        function logout() {
-            currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            alert('로그아웃 되었습니다.');
-            showWelcomeHome();
-        }
-        function loadPageById(pageId) {
-            if (!currentUser) {
-                alert('이 페이지를 보려면 로그인이 필요합니다.');
-                showLogin();
-                return;
-            }
-    // ... 페이지 로드
-        }
+        // # 수정: 내 페이지로 이동 (로그인 체크 + 페이지 존재 여부 체크)
         function goToMyPage() {
+            closeSettings();
+            
+            // # 로그인하지 않은 경우
             if (!currentUser) {
                 alert('로그인이 필요합니다.');
                 showLogin();
                 return;
             }
-    
+            
+            const myPageId = 'page_' + currentUser.id;
+            
+            // # 페이지가 없는 경우
             if (!pages[myPageId]) {
                 alert('아직 페이지가 없습니다. 페이지를 만들어주세요!');
                 showCreatePage();
+                return;
             }
+            
+            // # 페이지가 있는 경우
+            currentPageId = myPageId;
+            sessionStorage.setItem('currentPageId', currentPageId);
+            loadPage();
         }
-        function initPage() {
-            const pageId = urlParams.get('page');
-    
-            if (pageId && pages[pageId]) {
+
+        function goToCreatePage() {
+            closeSettings();
+            
+            // # 로그인하지 않은 경우
             if (!currentUser) {
-                alert('로그인이 필요합니다. 로그인 후 다시 접속해주세요.');
+                alert('로그인이 필요합니다.');
                 showLogin();
                 return;
             }
-                loadPageById(pageId);
-            } else {
-                showWelcomeHome();
-            }
+            
+            showCreatePage();
         }
-            
-            if (!currentPageId || !pages[currentPageId]) {
-                showCreatePage();
-                return;
-            }
-            
-            loadPage();
-            
-            const menu = document.getElementById('settingsMenu');
-            if (menu) {
-                menu.classList.remove('active');
-            }
+
+        function goToDidibot() {
+            showDidibot();
         }
 
         // 회원가입
@@ -677,18 +660,23 @@
             errorEl.classList.remove('hidden');
             return;
         }
-                currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                document.getElementById('loginEmail').value = '';
-                document.getElementById('loginPassword').value = '';
 
-                const pageId = 'page_' + user.id;
-                if (centralDB.pages[pageId]) {
-                    currentPageId = pageId;
-                    sessionStorage.setItem('currentPageId', currentPageId);
-                    loadPage();
-                } else {
-                    showCreatePage();
+        const user = users.find(u => u.email === email && u.password === password);
+
+        if (user) {
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+
+            const pageId = 'page_' + user.id;
+            if (centralDB.pages[pageId]) {
+                currentPageId = pageId;
+                sessionStorage.setItem('currentPageId', currentPageId);
+                loadPage();
+            } else {
+                alert('페이지를 만들어주세요!');
+                showCreatePage();
                 }
             } else {
                 errorEl.textContent = '이메일 또는 비밀번호가 틀렸습니다.';
@@ -703,10 +691,7 @@
 
             sessionStorage.removeItem('currentUser');
             sessionStorage.removeItem('currentPageId');
-
-            // 필요하면 메시지도 초기화하고 싶을 때 (선택)
-            // localStorage.removeItem('messages');
-
+            
             const menu = document.getElementById('settingsMenu');
             if (menu) {
                 menu.classList.remove('active');
@@ -729,6 +714,12 @@
                 errorEl.classList.remove('hidden');
                 return;
             }
+            // # 로그인 체크
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                showLogin();
+                return;
+            }
 
             const pageId = 'page_' + currentUser.id;
             pages[pageId] = { id: pageId, name, ownerId: currentUser.id };
@@ -738,7 +729,7 @@
             localStorage.setItem('messages', JSON.stringify(messages));
 
             currentPageId = pageId;
-            localStorage.setItem('currentPageId', currentPageId);
+            sessionStorage.setItem('currentPageId', currentPageId);
 
              const url = new URL(window.location.href);
              url.searchParams.set('page', currentPageId);   
@@ -753,11 +744,34 @@
 
         // 페이지 로드
         function loadPage() {
+            // # 로그인 체크
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                showLogin();
+                return;
+            }
+
+            // # 페이지 존재 여부 체크
+            if (!currentPageId || !pages[currentPageId]) {
+                alert('페이지를 찾을 수 없습니다.');
+                showCreatePage();
+                return;
+            }
             const page = pages[currentPageId];
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
             document.getElementById('messageModalTitle').textContent = page.name + '에게';
             
             renderBalloons();
+            showView('pageView');
+        }
+        
+        // # 페이지 주인 확인
+            const isOwner = currentUser.id === page.ownerId;
+            
+            document.getElementById('pageTitle').textContent = page.name + '의 페이지';
+            document.getElementById('messageModalTitle').textContent = page.name + '에게';
+            
+            renderBalloons(isOwner);
             showView('pageView');
         }
 
