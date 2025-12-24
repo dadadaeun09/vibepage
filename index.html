@@ -588,7 +588,10 @@
             // 페이지 정보 업데이트
             const page = centralDB.pages[currentPageId];
             document.getElementById('pageTitle').textContent = page.name + '의 페이지';
-            document.getElementById('messageModalTitle').textContent = 'TO.' + page.name;
+            document.getElementById('messageModalTitle').textContent = 'To.' + page.name;
+
+            // 풍선 렌더링
+            renderBalloons();
 
             // 화면 전환
             showView('pageView');
