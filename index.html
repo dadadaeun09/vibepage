@@ -591,37 +591,33 @@
     <script>
         // # 추가: Firebase 설정 (여기에 본인의 Firebase 설정 정보 입력)
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDWhpotjBRzaF2fAW9w1l5qwmzB0Cd9gWA",
+            authDomain: "vibe-page.firebaseapp.com",
+            databaseURL: "https://vibe-page-default-rtdb.firebaseio.com/",
+            projectId: "vibe-page",
+            storageBucket: "vibe-page.firebasestorage.app",
+            messagingSenderId: "332174000512",
+            appId: "1:332174000512:web:df67d0153bf1e930ad0165"
         };
-    
-    <script>
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
         // ===== 중앙 데이터베이스 구조 =====
-        let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
-        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        let currentPageId = localStorage.getItem('currentPageId');
+        let currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        let currentPageId = null;
 
         // 비속어 리스트
         const badWords = ['시발', '씨발', 'ㅅㅂ', 'ㅆㅂ', '시벌', '씹탱', '슈발', '시바', '씨바', '지랄', '지롤', '년', '새끼', '새키', 'ㅅㄲ', 'ㅈㄹ', '뻐큐', '색히', '뒤져', '씨발련', '시발련', '느금마', '애미', '애비', '좆', '좃', '씹', '존나', '졸라', 'ㅈㄴ', '병신', '븅', 'ㅂㅅ', '븅신', 'ㄱㅅㄲ'];
         
         // 풍선 색상
         const colors = ['pink', 'purple', 'blue', 'green', 'yellow', 'red', 'beige', 'orange', 'deepgreen'];
-
-        // 중앙 DB 저장
-        function saveCentralDB() {
-            localStorage.setItem('centralDB', JSON.stringify(centralDB));
-        }
-
+        
         // 비속어 카운트
         function countBadWords(text) {
             let count = 0;
+            const lowerText = text.toLowerCase();
             badWords.forEach(word => {
-                const lowerText =text.toLowerCase();
                 const lowerWord = word.toLowerCase();
                 let index = 0;
                 while ((index = lowerText.indexOf(lowerWord, index)) !== -1) {
@@ -714,7 +710,7 @@
         }
 
         // 회원가입
-        function signup() {
+        async function signup() {
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
@@ -736,22 +732,23 @@
             }
 
             // 이메일 중복 체크
-            if (centralDB.users[email]) {
-                errorEl.textContent = '이미 존재하는 이메일입니다.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
+            const emailKey = email.replace(/\./g, '_').replace(/@/g, '_at_');
 
-            // 사용자 정보를 이메일을 키로 저장
-            const userId = Date.now();
-            centralDB.users[email] = { 
-                id: userId, 
-                name, 
-                email, 
-                password 
-            };
+            try {
+                const snapshot = await database.ref('users/' + emailKey).once('value');
+                if (snapshot.exists()) {
+                    errorEl.textContent = '이미 존재하는 이메일입니다.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
 
-            saveCentralDB();
+                const userId = Date.now();
+                await database.ref('users/' + emailKey).set({
+                    id: userId,
+                    name,
+                    email,
+                    password
+                });
 
             alert('회원가입이 완료되었습니다. 로그인 후 이용해주세요.');
             document.getElementById('signupName').value = '';
@@ -759,10 +756,15 @@
             document.getElementById('signupPassword').value = '';
             document.getElementById('signupAgreed').checked = false;
             showLogin();
+        } catch (error) {
+                console.error('회원가입 오류:', error);
+                errorEl.textContent = '회원가입 중 오류가 발생했습니다.';
+                errorEl.classList.remove('hidden');
+            }
         }
 
         // 로그인
-        function login() {
+        async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorEl = document.getElementById('loginError');
@@ -770,27 +772,40 @@
             errorEl.classList.add('hidden');
 
             // 이메일로 사용자 찾기
-            const user = centralDB.users[email];
-
-            if (!user || user.password !== password) {
-                errorEl.textContent = '이메일 또는 비밀번호가 틀립니다.';
+            if (!email || !password) {
+                errorEl.textContent = '모든 항목을 입력해주세요.';
                 errorEl.classList.remove('hidden');
                 return;
             }
 
-            // 로그인 성공
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
+            const emailKey = email.replace(/\./g, '_').replace(/@/g, '_at_');
 
-            const pageId = 'page_' + user.id;
-            if (centralDB.pages[pageId]) {
-                currentPageId = pageId;
-                localStorage.setItem('currentPageId', currentPageId);
-                showPage();
-            } else {
-                showCreatePage();
+            try {
+                const snapshot = await database.ref('users/' + emailKey).once('value');
+                const user = snapshot.val();
+
+                if (!user || user.password !== password) {
+                    errorEl.textContent = '이메일 또는 비밀번호가 틀립니다.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                currentUser = user;
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+
+                const pageSnapshot = await database.ref('pages/' + user.id).once('value');
+                if (pageSnapshot.exists()) {
+                    currentPageId = user.id;
+                    showPage();
+                } else {
+                    showCreatePage();
+                }
+            } catch (error) {
+                console.error('로그인 오류:', error);
+                errorEl.textContent = '로그인 중 오류가 발생했습니다.';
+                errorEl.classList.remove('hidden');
             }
         }
 
@@ -799,9 +814,14 @@
             currentUser = null;
             currentPageId = null;
 
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('currentPageId');
-
+            sessionStorage.removeItem('currentUser');
+            document.getElementById('settingsMenu').classList.remove('active');
+            alert('로그아웃 되었습니다.');
+            // # 추가: URL 파라미터 제거
+            window.history.pushState({}, '', window.location.pathname);
+            showWelcomeHome();
+        }
+            
             const menu = document.getElementById('settingsMenu');
             if (menu) {
                 menu.classList.remove('active');
