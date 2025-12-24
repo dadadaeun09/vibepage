@@ -556,9 +556,13 @@
         function countBadWords(text) {
             let count = 0;
             badWords.forEach(word => {
-                const regex = new RegExp(word, 'gi');
-                const matches = text.match(regex);
-                if (matches) count += matches.length;
+                const lowerText =text.toLowerCase();
+                const lowerWord = word.toLowerCase();
+                let index = 0;
+                while ((index = lowerText.indexOf(lowerWord, index)) !== -1) {
+                    count++;
+                    index += lowerWord.length;
+                }
             });
             return count;
         }
