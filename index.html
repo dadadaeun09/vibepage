@@ -518,6 +518,15 @@
         </div>
     </div>
 
+    <div id="viewMessageModal" class="balloon-message-modal">
+        <div class="balloon-message-content">
+            <h2 id ="viewMessageTitle" style="color: #6495ED; text-align: center; margin-bottom: 30px; font-size: 28px;">Message</h2>
+            <p id="viewMessageText" class="message-text"></p>
+            <p id="viewMessageAuthor" class="message-author"></p>
+            <button class="back-btn" onclick="closeViewMessage()">Back</button>
+        </div>
+    </div>
+
     <script>
         // ===== 중앙 데이터베이스 구조 =====
         let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
@@ -772,7 +781,7 @@
 
                 const isOwner = currentUser && centralDB.pages[currentPageId].ownerId === currentUser.id;
                 if (isOwner) {
-                    balloon.onclick = () => toggleMessage(msg.id);
+                    balloon.onclick = () => openViewMessage(msg);
                 }
 
 
@@ -780,11 +789,6 @@
                 balloon.innerHTML = `
                     <div class="balloon-shape color-${msg.color}"></div>
                     <div class="balloon-string string-${msg.color}"></div>
-                    <div id="message-${msg.id}" class="balloon-message">
-                        <button class="message-close" onclick="event.stopPropagation(); closeMessage(${msg.id})">✕</button>
-                        <p style="margin-bottom: 12px; color: #1F2937;">${msg.content}</p>
-                        <p style="text-align: right; font-size: 14px; color: #6B7280; font-weight: bold;">- ${msg.authorName}</p>
-                    </div>
                 `;
 
                 container.appendChild(balloon);
@@ -792,14 +796,14 @@
         }
 
         // 메시지 토글
-        function toggleMessage(msgId) {
-            const msgEl = document.getElementById('message-' + msgId);
-            msgEl.classList.toggle('active');
+        function openViewMessage(msg) {
+            document.getElementById('viewMessageText').textContent = msg.content;
+            document.getElementById('viewMessageAuthor').textContent = '- ' + msg.authorName
+            document.getElementById('viewMessageModal').classList.add('active');
         }
 
-        function closeMessage(msgId) {
-            const msgEl = document.getElementById('message-' + msgId);
-            msgEl.classList.remove('active');
+        function closeViewMessage() {
+            document.getElementById('viewMessageModal').classList.remove('active');
         }
 
         // 설정 메뉴 토글
