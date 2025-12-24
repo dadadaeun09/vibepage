@@ -1,1 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vibe page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: normal-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            min-height: 100vh;
+            background: #A9CCE3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 18px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        h1 {
+            color: #6495ED;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 13px;
+            border: 2px solid #6495ED;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #6495ED;
+        }
+        
+        textarea {
+            resize: none;
+            height: 120px;
+            font-family: inherit;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input {
+            width: 20px;
+            height: 20px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #6495ED;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #6495ED;
+        }
+        
+        .link-button {
+            background: transparent;
+            color: #6495ED;
+            padding: 10px;
+            font-size: 13px;
+        }
+        
+        .link-button:hover {
+            background: #F3F4F6;
+        }
+        
+        .error {
+            color: #DC2626;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .page-container {
+            min-height: 100vh;
+            background: #60A5FA;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: white;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+        }
+        
+        .settings-btn {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .settings-menu {
+            position: fixed;
+            top: 170px;
+            right: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            padding: 10px;
+            min-width: 200px;
+            z-index: 20;
+            display: none;
+        }
+        
+        .settings-menu.active {
+            display: block;
+        }
+        
+        .menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .menu-item:hover {
+            background: #F3F4F6;
+        }
+        
+        .balloons {
+            padding: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .balloon {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .balloon:hover {
+            transform: scale(1.1);
+        }
+        
+        .balloon-shape {
+            width: 100px;
+            height: 120px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .balloon-string {
+            width: 2px;
+            height: 60px;
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .balloon-message {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 80px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            padding: 20px;
+            width: 320px;
+            max-width: 90vw;
+            max-height: 400px;
+            overflow-y: auto;
+            word-wrap: break-word;
+            word-break: break-word;
+            z-index: 30;
+            display: none;
+        }
+        
+        .balloon-message.active {
+            display: block;
+        }
+        
+        .message-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            width: auto;
+            padding: 5px 10px;
+        }
+        
+        .add-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 70px;
+            height: 70px;
+            background: #2563EB;
+            border-radius: 50%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .add-btn:hover {
+            transform: scale(1.1);
+            background: #1D4ED8;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #1F2937;
+            font-size: 24px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            width: auto;
+            padding: 5px 10px;
+            color: #6B7280;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .flex-row input {
+            flex: 1;
+        }
+        
+        .flex-row button {
+            width: auto;
+            padding: 15px 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 풍선 색상 */
+        .color-pink { background: linear-gradient(135deg, #FCA5A5 0%, #F87171 100%); }
+        .color-purple { background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%); }
+        .color-blue { background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%); }
+        .color-green { background: linear-gradient(135deg, #86EFAC 0%, #4ADE80 100%); }
+        .color-yellow { background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%); }
+        .color-red { background: linear-gradient(135deg, #FCA5A5 0%, #EF4444 100%); }
+        .color-indigo { background: linear-gradient(135deg, #A5B4FC 0%, #818CF8 100%); }
+        
+        .string-pink { background: #F87171; }
+        .string-purple { background: #A78BFA; }
+        .string-blue { background: #60A5FA; }
+        .string-green { background: #4ADE80; }
+        .string-yellow { background: #FCD34D; }
+        .string-red { background: #EF4444; }
+        .string-indigo { background: #818CF8; }
+    </style>
+</head>
+<body>
+    <!-- 설정 버튼 -->
+    <div class="settings-btn" onclick="toggleSettings()">
+        ⚙️
+    </div>
+    
+    <div id="settingsMenu" class="settings-menu">
+        <div class="menu-item" onclick="showWelcomeHome()">HOME</div>
+        <div class="menu-item" onclick="showLogin()">LOG IN</div>
+        <div class="menu-item" onclick="showSignup()">SIGN UP</div>
+        <div class="menu-item" onclick="showPage()">MY PAGE</div>
+        <div class="menu-item" onclick="showCreatePage()">MAKE A PAGE</div>
+        <div class="menu-item" onclick="showDidibot()">DIDIBOT</div>
+        <div class="menu-item" onclick="logout()">LOG OUT</div>
+    </div>
+    
+    <!-- 홈 화면 -->
+    <div id="welcomeHomeView" class="container">
+        <div class="card">
+            <div class="home-content">
+                <h1>Vibe Page</h1>
+                <h2>Welcome to our site!</h2>
+                <button onclick="showLogin()">LOG IN</button>
+                <button onclick="showPage()">MY PAGE</button>
+                <button class="link-button" onclick="showSignup()">SIGN UP</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- 로그인 화면 -->
+    <div id="loginView" class="container hidden">
+        <div class="card">
+            <h1>Log In</h1>
+            <div class="input-group">
+                <input type="email" id="loginEmail" placeholder="Email Address">
+            </div>
+            <div class="input-group">
+                <input type="password" id="loginPassword" placeholder="Password">
+            </div>
+            <div id="loginError" class="error hidden"></div>
+            <button onclick="login()">Log In</button>
+            <button class="link-button" onclick="showSignup()">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- 회원가입 화면 -->
+    <div id="signupView" class="container hidden">
+        <div class="card">
+            <h1>Sign Up</h1>
+            <div class="input-group">
+                <input type="text" id="signupName" placeholder="Name">
+            </div>
+            <div class="input-group">
+                <input type="email" id="signupEmail" placeholder="Email Address">
+            </div>
+            <div class="input-group">
+                <input type="password" id="signupPassword" placeholder="Password">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="signupAgreed">
+                <label> 개인정보 수집 및 이용에 동의합니다. </label>
+            </div>
+            <div id="signupError" class="error hidden"></div>
+            <button onclick="signup()">Sign Up</button>
+            <button class="link-button" onclick="showLogin()">Log In</button>
+        </div>
+    </div>
+
+    <!-- 페이지 생성 화면 -->
+    <div id="createPageView" class="container hidden">
+        <div class="card">
+            <h1>Make a Page</h1>
+            <div class="input-group">
+                <input type="text" id="pageName" placeholder="Page Name">
+            </div>
+            <div id="createPageError" class="error hidden"></div>
+            <button onclick="createPage()">Create</button>
+            <button class="link-button" onclick="logout()">Log Out</button>
+        </div>
+    </div>
+
+    <!-- 디디봇 설명 화면 -->
+    <div id="didibotView" class="container hidden">
+        <div class="card">
+            <h1>DIDIBOT</h1>
+            <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">비속어 필터링 봇</p>
+            <p style="margin-bottom: 20px;">디디봇은 욕설, 비속어, 성적 발언 등 부적절한 메시지를 자동으로 감지하고 차단하는 필터링 봇입니다.</p>
+            <div style="background: #EFF6FF; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <p style="font-weight: bold; margin-bottom: 10px;">작동 방식:</p>
+                <p>• 부적절한 언어가 3회 이상 포함된 메시지는 전송이 거부됩니다.</p>
+                <p>• 기분 좋게 편지를 주고 받아요!</p>
+            </div>
+            <button class="link-button" onclick="showwelcomeHome()">Home</button>
+        </div>
+    </div>
+
+    <!-- 개인 페이지 -->
+    <div id="pageView" class="page-container hidden">
+        <div class="header">
+            <h1 id="pageTitle"></h1>
+        </div>
+        
+        <div id="balloonsContainer" class="balloons"></div>
+        
+        <button class="add-btn" onclick="showMessageForm()">+</button>
+    </div>
+
+    <!-- 메시지 작성 모달 -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="messageModalTitle"></h2>
+                <button class="close-btn" onclick="closeMessageForm()">✕</button>
+            </div>
+            <div class="input-group">
+                <textarea id="messageContent" placeholder="Message"></textarea>
+            </div>
+            <div class="flex-row">
+                <input type="text" id="messageAuthor" placeholder="From">
+                <button onclick="submitMessage()">
+                    <span>Send</span>
+                </button>
+            </div>
+            <div id="messageError" class="error hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 중앙 데이터베이스 구조 =====
+        let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let currentPageId = localStorage.getItem('currentPageId');
+
+        // 비속어 리스트
+        const badWords = ['바보', '멍청', '싫어', '짜증', '나쁜', '죽어'];
+        
+        // 풍선 색상
+        const colors = ['pink', '여 메시지를 전송할 수 없습니다.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const newMessage = {
+                id: Date.now(),
+                content,
+                authorName,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            };
+
+            // 중앙 DB에 메시지 추가
+            if (!centralDB.messages[currentPageId]) {
+                centralDB.messages[currentPageId] = [];
+            }
+            centralDB.messages[currentPageId].push(newMessage);
+            saveCentralDB();
+
+            alert('메시지가 전송되었습니다!');
+            closeMessageForm();
+            renderBalloons();
+        }
+
+        // 초기 로드
+        showView('welcomeHomeView');
+    </script>
+</body>
+</html>
