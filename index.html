@@ -584,6 +584,22 @@
         </div>
     </div>
 
+    #수정
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // # 추가: Firebase 설정 (여기에 본인의 Firebase 설정 정보 입력)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+    
     <script>
         // ===== 중앙 데이터베이스 구조 =====
         let centralDB = JSON.parse(localStorage.getItem('centralDB') || '{"users": {}, "pages": {}, "messages": {}}');
