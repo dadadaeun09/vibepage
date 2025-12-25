@@ -780,6 +780,7 @@
             }
 
             try {
+                await database.ref('messages/' + currentUser.id).remove();
                 await database.ref('pages/' + currentUser.id).set({
                     id: currentUser.id,
                     name,
