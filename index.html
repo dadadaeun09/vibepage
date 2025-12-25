@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vibe page</title>
     <style>
+        /* # 기존 CSS 그대로 유지 */
         * {
             margin: 0;
             padding: 0;
@@ -39,8 +40,8 @@
             margin-bottom: 30px;
             font-size: 32px;
         }
-
-        #수정부분
+        
+        /* # 추가: 홈 컨텐츠 스타일 */
         .home-content {
             text-align: center;
         }
@@ -206,7 +207,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2),
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             position: relative;
             border: 3px solid rgba(255,255,255,0.3);
         }
@@ -231,13 +232,13 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%
+            height: 100%;
             background: rgba(0,0,0,0.5);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 40;
-            padding:20px;
+            z-index: 50;
+            padding: 20px;
         }
 
         .balloon-message-modal.active {
@@ -247,16 +248,13 @@
         .balloon-message-content {
             background: white;
             border-radius: 24px;
-            padding: 30px;
+            padding: 40px;
             width: 100%;
-            max-width: 450px;
-        }
-        
-        .balloon-message-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
         .message-text {
@@ -279,7 +277,7 @@
         .back-btn {
             width: 100%;
             padding: 15px;
-            background: #64995ED;
+            background: #6495ED;
             color: white;
             border: none;
             border-radius: 12px;
@@ -292,8 +290,8 @@
         .back-btn:hover {
             background: #557DE1;
         }
-
-        #수정
+        
+        /* # 추가: 링크 공유 박스 */
         .share-link-box {
             background: #EFF6FF;
             padding: 15px;
@@ -425,7 +423,6 @@
             display: none;
         }
         
-        /* 풍선 색상 */
         .color-pink { background: #FFB5DA; }
         .color-purple { background: #836FFF; }
         .color-blue { background: #6499E9; }
@@ -445,14 +442,11 @@
         .string-beige { background: #FDF4E3; }
         .string-orange { background: #FF9D23; }
         .string-deepgreen { background: #16C47F; }
-        
     </style>
 </head>
 <body>
-    <!-- 설정 버튼 -->
-    <div class="settings-btn" onclick="toggleSettings()">
-        ⚙️
-    </div>
+    <!-- 기존 HTML 구조 그대로 유지 -->
+    <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
     
     <div id="settingsMenu" class="settings-menu">
         <div class="menu-item" onclick="showWelcomeHome()">HOME</div>
@@ -464,7 +458,6 @@
         <div class="menu-item" onclick="logout()">LOG OUT</div>
     </div>
     
-    <!-- 홈 화면 -->
     <div id="welcomeHomeView" class="container">
         <div class="card">
             <div class="home-content">
@@ -477,7 +470,6 @@
         </div>
     </div>
 
-    <!-- 로그인 화면 -->
     <div id="loginView" class="container hidden">
         <div class="card">
             <h1>Log In</h1>
@@ -493,7 +485,6 @@
         </div>
     </div>
 
-    <!-- 회원가입 화면 -->
     <div id="signupView" class="container hidden">
         <div class="card">
             <h1>Sign Up</h1>
@@ -508,7 +499,7 @@
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="signupAgreed">
-                <label> 개인정보 수집 및 이용에 동의합니다. </label>
+                <label>개인정보 수집 및 이용에 동의합니다.</label>
             </div>
             <div id="signupError" class="error hidden"></div>
             <button onclick="signup()">Sign Up</button>
@@ -516,7 +507,6 @@
         </div>
     </div>
 
-    <!-- 페이지 생성 화면 -->
     <div id="createPageView" class="container hidden">
         <div class="card">
             <h1>Make a Page</h1>
@@ -529,7 +519,6 @@
         </div>
     </div>
 
-    <!-- 디디봇 설명 화면 -->
     <div id="didibotView" class="container hidden">
         <div class="card">
             <h1>DIDIBOT</h1>
@@ -544,10 +533,15 @@
         </div>
     </div>
 
-    <!-- 개인 페이지 -->
     <div id="pageView" class="page-container hidden">
         <div class="header">
             <h1 id="pageTitle"></h1>
+            <!-- # 추가: 링크 공유 박스 -->
+            <div id="shareLinkBox" class="share-link-box hidden">
+                <p>📎 내 페이지 링크를 공유하세요!</p>
+                <div class="share-link" id="shareLink"></div>
+                <button class="copy-btn" onclick="copyLink()">링크 복사</button>
+            </div>
         </div>
         
         <div id="balloonsContainer" class="balloons"></div>
@@ -555,7 +549,6 @@
         <button class="add-btn" onclick="showMessageForm()">+</button>
     </div>
 
-    <!-- 메시지 작성 모달 -->
     <div id="messageModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -577,46 +570,45 @@
 
     <div id="viewMessageModal" class="balloon-message-modal">
         <div class="balloon-message-content">
-            <h2 id ="viewMessageTitle" style="color: #6495ED; text-align: center; margin-bottom: 30px; font-size: 28px;">Message</h2>
+            <h2 style="color: #6495ED; text-align: center; margin-bottom: 30px; font-size: 28px;">Message</h2>
             <p id="viewMessageText" class="message-text"></p>
             <p id="viewMessageAuthor" class="message-author"></p>
             <button class="back-btn" onclick="closeViewMessage()">Back</button>
         </div>
     </div>
 
-    #수정
+    <!-- # 추가: Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <script>
         // # 추가: Firebase 설정 (여기에 본인의 Firebase 설정 정보 입력)
         const firebaseConfig = {
-            apiKey: "AIzaSyDWhpotjBRzaF2fAW9w1l5qwmzB0Cd9gWA",
-            authDomain: "vibe-page.firebaseapp.com",
-            databaseURL: "https://vibe-page-default-rtdb.firebaseio.com/",
-            projectId: "vibe-page",
-            storageBucket: "vibe-page.firebasestorage.app",
-            messagingSenderId: "332174000512",
-            appId: "1:332174000512:web:df67d0153bf1e930ad0165"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
+        // # 추가: Firebase 초기화
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // ===== 중앙 데이터베이스 구조 =====
+        // # 수정: 로컬 변수 (세션에만 저장)
         let currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         let currentPageId = null;
 
-        // 비속어 리스트
         const badWords = ['시발', '씨발', 'ㅅㅂ', 'ㅆㅂ', '시벌', '씹탱', '슈발', '시바', '씨바', '지랄', '지롤', '년', '새끼', '새키', 'ㅅㄲ', 'ㅈㄹ', '뻐큐', '색히', '뒤져', '씨발련', '시발련', '느금마', '애미', '애비', '좆', '좃', '씹', '존나', '졸라', 'ㅈㄴ', '병신', '븅', 'ㅂㅅ', '븅신', 'ㄱㅅㄲ'];
-        
-        // 풍선 색상
         const colors = ['pink', 'purple', 'blue', 'green', 'yellow', 'red', 'beige', 'orange', 'deepgreen'];
-        
-        // 비속어 카운트
+
+        // # 수정: 비속어 카운트 (띄어쓰기 없이 붙어있어도 감지)
         function countBadWords(text) {
             let count = 0;
             const lowerText = text.toLowerCase();
+            
             badWords.forEach(word => {
                 const lowerWord = word.toLowerCase();
                 let index = 0;
@@ -628,7 +620,6 @@
             return count;
         }
 
-        // 화면 전환
         function showView(viewId) {
             document.querySelectorAll('.container, .page-container').forEach(el => {
                 el.classList.add('hidden');
@@ -666,50 +657,7 @@
             document.getElementById('settingsMenu').classList.remove('active');
         }
 
-        // ✅ 수정된 showPage 함수
-        function showPage() {
-            console.log('showPage 호출됨');
-            console.log('currentUser:', currentUser);
-
-            // 로그인 체크
-            if (!currentUser) {
-                alert('로그인 후 이용 가능합니다.');
-                showLogin();
-                return;
-            }
-
-            // 현재 사용자의 페이지 ID 생성
-            const pageId = 'page_' + currentUser.id;
-            console.log('pageId:', pageId);
-            console.log('centralDB.pages:', centralDB.pages);
-
-            // 페이지가 존재하는지 확인
-            if (!centralDB.pages[pageId]) {
-                alert('페이지를 먼저 생성해주세요.');
-                showCreatePage();
-                return;
-            }
-
-            // 페이지 로드
-            currentPageId = pageId;
-            localStorage.setItem('currentPageId', currentPageId);
-
-            // 페이지 정보 업데이트
-            const page = centralDB.pages[currentPageId];
-            document.getElementById('pageTitle').textContent = page.name + '의 페이지';
-            document.getElementById('messageModalTitle').textContent = 'To.' + page.name;
-
-            // 풍선 렌더링
-            renderBalloons();
-
-            // 화면 전환
-            showView('pageView');
-
-            // 설정 메뉴 닫기
-            document.getElementById('settingsMenu').classList.remove('active');
-        }
-
-        // 회원가입
+        // # 수정: 회원가입 - Firebase에 저장
         async function signup() {
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
@@ -731,9 +679,8 @@
                 return;
             }
 
-            // 이메일 중복 체크
             const emailKey = email.replace(/\./g, '_').replace(/@/g, '_at_');
-
+            
             try {
                 const snapshot = await database.ref('users/' + emailKey).once('value');
                 if (snapshot.exists()) {
@@ -750,20 +697,20 @@
                     password
                 });
 
-            alert('회원가입이 완료되었습니다. 로그인 후 이용해주세요.');
-            document.getElementById('signupName').value = '';
-            document.getElementById('signupEmail').value = '';
-            document.getElementById('signupPassword').value = '';
-            document.getElementById('signupAgreed').checked = false;
-            showLogin();
-        } catch (error) {
+                alert('회원가입이 완료되었습니다!');
+                document.getElementById('signupName').value = '';
+                document.getElementById('signupEmail').value = '';
+                document.getElementById('signupPassword').value = '';
+                document.getElementById('signupAgreed').checked = false;
+                showLogin();
+            } catch (error) {
                 console.error('회원가입 오류:', error);
                 errorEl.textContent = '회원가입 중 오류가 발생했습니다.';
                 errorEl.classList.remove('hidden');
             }
         }
 
-        // 로그인
+        // # 수정: 로그인 - Firebase에서 확인
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -771,7 +718,6 @@
 
             errorEl.classList.add('hidden');
 
-            // 이메일로 사용자 찾기
             if (!email || !password) {
                 errorEl.textContent = '모든 항목을 입력해주세요.';
                 errorEl.classList.remove('hidden');
@@ -809,11 +755,9 @@
             }
         }
 
-        // 로그아웃
         function logout() {
             currentUser = null;
             currentPageId = null;
-
             sessionStorage.removeItem('currentUser');
             document.getElementById('settingsMenu').classList.remove('active');
             alert('로그아웃 되었습니다.');
@@ -821,67 +765,123 @@
             window.history.pushState({}, '', window.location.pathname);
             showWelcomeHome();
         }
-            
-            const menu = document.getElementById('settingsMenu');
-            if (menu) {
-                menu.classList.remove('active');
-            }
 
-            alert('로그아웃 되었습니다.');
-            showWelcomeHome();
-        }
-
-        // 페이지 생성
-        function createPage() {
+        // # 수정: 페이지 생성 - Firebase에 저장
+        async function createPage() {
             const name = document.getElementById('pageName').value;
             const errorEl = document.getElementById('createPageError');
 
             errorEl.classList.add('hidden');
 
             if (!name) {
-                errorEl.textContent = 'Name';
+                errorEl.textContent = '이름을 입력해주세요.';
                 errorEl.classList.remove('hidden');
                 return;
             }
 
-            const pageId = 'page_' + currentUser.id;
+            try {
+                await database.ref('pages/' + currentUser.id).set({
+                    id: currentUser.id,
+                    name,
+                    ownerId: currentUser.id
+                });
 
-            // 중앙 DB에 페이지 저장 및 메시지 초기화
-            centralDB.pages[pageId] = { 
-                id: pageId, 
-                name, 
-                ownerId: currentUser.id 
-            };
-            centralDB.messages[pageId] = []; // 기존 메시지 초기화
-
-            saveCentralDB();
-
-            currentPageId = pageId;
-            localStorage.setItem('currentPageId', currentPageId);
-
-            document.getElementById('pageName').value = '';
-            alert('새 페이지가 생성되었습니다!');
-            showPage();
+                currentPageId = currentUser.id;
+                document.getElementById('pageName').value = '';
+                alert('페이지가 생성되었습니다!');
+                showPage();
+            } catch (error) {
+                console.error('페이지 생성 오류:', error);
+                errorEl.textContent = '페이지 생성 중 오류가 발생했습니다.';
+                errorEl.classList.remove('hidden');
+            }
         }
 
-        // 풍선 렌더링
-        function renderBalloons() {
-            const container = document.getElementById('balloonsContainer');
-            container.innerHTML = '';
+        // # 수정: 페이지 표시 - Firebase에서 불러오기 및 URL 파라미터 처리
+        async function showPage() {
+            // # 추가: URL 파라미터에서 pageId 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlPageId = urlParams.get('page');
+            
+            let targetPageId = urlPageId || (currentUser ? currentUser.id : null);
 
-            const pageMessages = centralDB.messages[currentPageId] || [];
+            if (!targetPageId) {
+                if (!currentUser) {
+                    alert('로그인 후 이용 가능합니다.');
+                    showLogin();
+                    return;
+                }
+                alert('페이지를 먼저 생성해주세요.');
+                showCreatePage();
+                return;
+            }
+
+            try {
+                const pageSnapshot = await database.ref('pages/' + targetPageId).once('value');
+                const page = pageSnapshot.val();
+
+                if (!page) {
+                    alert('존재하지 않는 페이지입니다.');
+                    showWelcomeHome();
+                    return;
+                }
+
+                currentPageId = targetPageId;
+                document.getElementById('pageTitle').textContent = page.name + '의 페이지';
+                document.getElementById('messageModalTitle').textContent = 'To. ' + page.name;
+
+                // # 추가: 페이지 주인이면 링크 공유 박스 표시
+                const isOwner = currentUser && currentUser.id === page.ownerId;
+                if (isOwner) {
+                    const pageUrl = window.location.origin + window.location.pathname + '?page=' + currentPageId;
+                    document.getElementById('shareLink').textContent = pageUrl;
+                    document.getElementById('shareLinkBox').classList.remove('hidden');
+
+// # 추가: URL 업데이트
+                window.history.pushState({}, '', '?page=' + currentPageId);
+            } else {
+                document.getElementById('shareLinkBox').classList.add('hidden');
+            }
+
+            renderBalloons(isOwner);
+            showView('pageView');
+            document.getElementById('settingsMenu').classList.remove('active');
+        } catch (error) {
+            console.error('페이지 로드 오류:', error);
+            alert('페이지 로드 중 오류가 발생했습니다.');
+        }
+    }
+
+    // # 추가: 링크 복사 기능
+    function copyLink() {
+        const linkText = document.getElementById('shareLink').textContent;
+        navigator.clipboard.writeText(linkText).then(() => {
+            alert('링크가 복사되었습니다!');
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            alert('링크 복사에 실패했습니다.');
+        });
+    }
+
+    // # 수정: 풍선 렌더링 - Firebase에서 불러오기
+    async function renderBalloons(isOwner) {
+        const container = document.getElementById('balloonsContainer');
+        container.innerHTML = '';
+
+        try {
+            const messagesSnapshot = await database.ref('messages/' + currentPageId).once('value');
+            const messagesData = messagesSnapshot.val();
+            const pageMessages = messagesData ? Object.values(messagesData) : [];
+
             pageMessages.forEach((msg, index) => {
                 const balloon = document.createElement('div');
                 balloon.className = 'balloon';
                 balloon.style.marginTop = (index % 3) * 20 + 'px';
                 balloon.style.marginLeft = (index % 4) * 15 + 'px';
 
-                const isOwner = currentUser && centralDB.pages[currentPageId].ownerId === currentUser.id;
                 if (isOwner) {
                     balloon.onclick = () => openViewMessage(msg);
                 }
-
-
 
                 balloon.innerHTML = `
                     <div class="balloon-shape color-${msg.color}"></div>
@@ -890,78 +890,93 @@
 
                 container.appendChild(balloon);
             });
+        } catch (error) {
+            console.error('메시지 로드 오류:', error);
+        }
+    }
+
+    function openViewMessage(msg) {
+        document.getElementById('viewMessageText').textContent = msg.content;
+        document.getElementById('viewMessageAuthor').textContent = '- ' + msg.authorName;
+        document.getElementById('viewMessageModal').classList.add('active');
+    }
+
+    function closeViewMessage() {
+        document.getElementById('viewMessageModal').classList.remove('active');
+    }
+
+    function toggleSettings() {
+        document.getElementById('settingsMenu').classList.toggle('active');
+    }
+
+    function showMessageForm() {
+        document.getElementById('messageModal').classList.add('active');
+    }
+
+    function closeMessageForm() {
+        document.getElementById('messageModal').classList.remove('active');
+        document.getElementById('messageContent').value = '';
+        document.getElementById('messageAuthor').value = '';
+        document.getElementById('messageError').classList.add('hidden');
+    }
+
+    // # 수정: 메시지 등록 - Firebase에 저장
+    async function submitMessage() {
+        const content = document.getElementById('messageContent').value;
+        const authorName = document.getElementById('messageAuthor').value;
+        const errorEl = document.getElementById('messageError');
+
+        errorEl.classList.add('hidden');
+
+        if (!content || !authorName) {
+            errorEl.textContent = '모든 항목을 입력해주세요.';
+            errorEl.classList.remove('hidden');
+            return;
         }
 
-        // 메시지 토글
-        function openViewMessage(msg) {
-            document.getElementById('viewMessageText').textContent = msg.content;
-            document.getElementById('viewMessageAuthor').textContent = '- ' + msg.authorName
-            document.getElementById('viewMessageModal').classList.add('active');
+        const badWordCount = countBadWords(content);
+        if (badWordCount >= 3) {
+            errorEl.textContent = '디디봇이 부적절한 내용을 감지하여 메시지를 전송할 수 없습니다.';
+            errorEl.classList.remove('hidden');
+            return;
         }
 
-        function closeViewMessage() {
-            document.getElementById('viewMessageModal').classList.remove('active');
-        }
-        
-        // 설정 메뉴 토글
-        function toggleSettings() {
-            document.getElementById('settingsMenu').classList.toggle('active');
-        }
+        const newMessage = {
+            id: Date.now(),
+            content,
+            authorName,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            timestamp: Date.now()
+        };
 
-        // 메시지 폼 열기
-        function showMessageForm() {
-            document.getElementById('messageModal').classList.add('active');
-        }
-
-        function closeMessageForm() {
-            document.getElementById('messageModal').classList.remove('active');
-            document.getElementById('messageContent').value = '';
-            document.getElementById('messageAuthor').value = '';
-            document.getElementById('messageError').classList.add('hidden');
-        }
-
-        // 메시지 등록
-        function submitMessage() {
-            const content = document.getElementById('messageContent').value;
-            const authorName = document.getElementById('messageAuthor').value;
-            const errorEl = document.getElementById('messageError');
-
-            errorEl.classList.add('hidden');
-
-            if (!content || !authorName) {
-                errorEl.textContent = '모든 항목을 입력해주세요.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
-
-            const badWordCount = countBadWords(content);
-            if (badWordCount >= 3) {
-                errorEl.textContent = '디디봇이 부적절한 내용을 감지하여 메시지를 전송할 수 없습니다.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
-
-            const newMessage = {
-                id: Date.now(),
-                content,
-                authorName,
-                color: colors[Math.floor(Math.random() * colors.length)]
-            };
-
-            // 중앙 DB에 메시지 추가
-            if (!centralDB.messages[currentPageId]) {
-                centralDB.messages[currentPageId] = [];
-            }
-            centralDB.messages[currentPageId].push(newMessage);
-            saveCentralDB();
-
+        try {
+            await database.ref('messages/' + currentPageId + '/' + newMessage.id).set(newMessage);
             alert('메시지가 전송되었습니다!');
             closeMessageForm();
-            renderBalloons();
+            
+            // # 수정: 페이지 주인 여부 확인 후 렌더링
+            const pageSnapshot = await database.ref('pages/' + currentPageId).once('value');
+            const page = pageSnapshot.val();
+            const isOwner = currentUser && currentUser.id === page.ownerId;
+            renderBalloons(isOwner);
+        } catch (error) {
+            console.error('메시지 전송 오류:', error);
+            errorEl.textContent = '메시지 전송 중 오류가 발생했습니다.';
+            errorEl.classList.remove('hidden');
         }
+    }
 
-        // 초기 로드
-        showView('welcomeHomeView');
-    </script>
+    // # 추가: 초기 로드 - URL 파라미터 확인
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('page');
+        
+        if (pageId) {
+            showPage();
+        } else {
+            showView('welcomeHomeView');
+        }
+    });
+</script>
 </body>
 </html>
